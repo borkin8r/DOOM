@@ -11,7 +11,7 @@ LDFLAGS=-L/usr/X11R6/lib
 LIBS=-lXext -lX11 -lnsl -lm
 
 # subdirectory for objects
-O=linux
+O=../linux
 
 # not too sophisticated dependency
 OBJS=				\
@@ -81,7 +81,7 @@ all:	 $(O)/linuxxdoom
 
 clean:
 	rm -f *.o *~ *.flc
-	rm -f linux/*
+	rm -f ../linux/*
 
 $(O)/linuxxdoom:	$(OBJS) $(O)/i_main.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(O)/i_main.o \
