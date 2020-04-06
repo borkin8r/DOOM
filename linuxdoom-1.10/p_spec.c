@@ -59,7 +59,7 @@ rcsid[] = "$Id: p_spec.c,v 1.6 1997/02/03 22:45:12 b1 Exp $";
 //
 typedef struct
 {
-    boolean	istexture;
+    dboolean	istexture;
     int		picnum;
     int		basepic;
     int		numpics;
@@ -72,7 +72,7 @@ typedef struct
 //
 typedef struct
 {
-    boolean	istexture;	// if false, it is a flat
+    dboolean	istexture;	// if false, it is a flat
     char	endname[9];
     char	startname[9];
     int		speed;
@@ -384,7 +384,7 @@ P_FindLowestCeilingSurrounding(sector_t* sec)
     int			i;
     line_t*		check;
     sector_t*		other;
-    fixed_t		height = MAXINT;
+    fixed_t		height = DMAXINT;
 	
     for (i=0 ;i < sec->linecount ; i++)
     {
@@ -1077,7 +1077,7 @@ void P_PlayerInSpecialSector (player_t* player)
 // P_UpdateSpecials
 // Animate planes, scroll walls, etc.
 //
-boolean		levelTimer;
+dboolean		levelTimer;
 int		levelTimeCount;
 
 void P_UpdateSpecials (void)

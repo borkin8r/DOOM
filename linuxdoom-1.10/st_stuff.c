@@ -270,7 +270,7 @@ rcsid[] = "$Id: st_stuff.c,v 1.6 1997/02/03 22:45:13 b1 Exp $";
 static player_t*	plyr; 
 
 // ST_Start() has just been called
-static boolean		st_firsttime;
+static dboolean		st_firsttime;
 
 // used to execute ST_Init() only once
 static int		veryfirsttime = 1;
@@ -291,25 +291,25 @@ static st_chatstateenum_t	st_chatstate;
 static st_stateenum_t	st_gamestate;
 
 // whether left-side main status bar is active
-static boolean		st_statusbaron;
+static dboolean		st_statusbaron;
 
 // whether status bar chat is active
-static boolean		st_chat;
+static dboolean		st_chat;
 
 // value of st_chat before message popped up
-static boolean		st_oldchat;
+static dboolean		st_oldchat;
 
 // whether chat window has the cursor on
-static boolean		st_cursoron;
+static dboolean		st_cursoron;
 
 // !deathmatch
-static boolean		st_notdeathmatch; 
+static dboolean		st_notdeathmatch; 
 
 // !deathmatch && st_statusbaron
-static boolean		st_armson;
+static dboolean		st_armson;
 
 // !deathmatch
-static boolean		st_fragson; 
+static dboolean		st_fragson; 
 
 // main bar left
 static patch_t*		sbar;
@@ -378,7 +378,7 @@ static int	st_fragscount;
 static int	st_oldhealth = -1;
 
 // used for evil grin
-static boolean	oldweaponsowned[NUMWEAPONS]; 
+static dboolean	oldweaponsowned[NUMWEAPONS]; 
 
  // count until face changes
 static int	st_facecount = 0;
@@ -514,7 +514,7 @@ void ST_refreshBackground(void)
 
 // Respond to keyboard input events,
 //  intercept cheats.
-boolean
+dboolean
 ST_Responder (event_t* ev)
 {
   int		i;
@@ -756,7 +756,7 @@ void ST_updateFaceWidget(void)
     angle_t	diffang;
     static int	lastattackdown = -1;
     static int	priority = 0;
-    boolean	doevilgrin;
+    dboolean	doevilgrin;
 
     if (priority < 10)
     {
@@ -1051,7 +1051,7 @@ void ST_doPaletteStuff(void)
 
 }
 
-void ST_drawWidgets(boolean refresh)
+void ST_drawWidgets(dboolean refresh)
 {
     int		i;
 
@@ -1105,7 +1105,7 @@ void ST_diffDraw(void)
     ST_drawWidgets(false);
 }
 
-void ST_Drawer (boolean fullscreen, boolean refresh)
+void ST_Drawer (dboolean fullscreen, dboolean refresh)
 {
   
     st_statusbaron = (!fullscreen) || automapactive;
@@ -1438,7 +1438,7 @@ void ST_createWidgets(void)
 
 }
 
-static boolean	st_stopped = true;
+static dboolean	st_stopped = true;
 
 
 void ST_Start (void)

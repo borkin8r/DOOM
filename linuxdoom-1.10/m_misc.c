@@ -70,7 +70,7 @@ int
 M_DrawText
 ( int		x,
   int		y,
-  boolean	direct,
+  dboolean	direct,
   char*		string )
 {
     int 	c;
@@ -109,7 +109,7 @@ M_DrawText
 #define O_BINARY 0
 #endif
 
-boolean
+dboolean
 M_WriteFile
 ( char const*	name,
   void*		source,
@@ -346,7 +346,7 @@ void M_LoadDefaults (void)
     char	strparm[100];
     char*	newstring;
     int		parm;
-    boolean	isstring;
+    dboolean	isstring;
     
     // set everything to base values
     numdefaults = sizeof(defaults)/sizeof(defaults[0]);

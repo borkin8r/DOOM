@@ -92,14 +92,14 @@ void D_DoomLoop (void);
 char*		wadfiles[MAXWADFILES];
 
 
-boolean		devparm;	// started game with -devparm
-boolean         nomonsters;	// checkparm of -nomonsters
-boolean         respawnparm;	// checkparm of -respawn
-boolean         fastparm;	// checkparm of -fast
+dboolean		devparm;	// started game with -devparm
+dboolean         nomonsters;	// checkparm of -nomonsters
+dboolean         respawnparm;	// checkparm of -respawn
+dboolean         fastparm;	// checkparm of -fast
 
-boolean         drone;
+dboolean         drone;
 
-boolean		singletics = false; // debug flag to cancel adaptiveness
+dboolean		singletics = false; // debug flag to cancel adaptiveness
 
 
 
@@ -107,16 +107,16 @@ boolean		singletics = false; // debug flag to cancel adaptiveness
 //extern  int	sfxVolume;
 //extern  int	musicVolume;
 
-extern  boolean	inhelpscreens;
+extern  dboolean	inhelpscreens;
 
 skill_t		startskill;
 int             startepisode;
 int		startmap;
-boolean		autostart;
+dboolean		autostart;
 
 FILE*		debugfile;
 
-boolean		advancedemo;
+dboolean		advancedemo;
 
 
 
@@ -186,25 +186,25 @@ void D_ProcessEvents (void)
 
 // wipegamestate can be set to -1 to force a wipe on the next draw
 gamestate_t     wipegamestate = GS_DEMOSCREEN;
-extern  boolean setsizeneeded;
+extern  dboolean setsizeneeded;
 extern  int             showMessages;
 void R_ExecuteSetViewSize (void);
 
 void D_Display (void)
 {
-    static  boolean		viewactivestate = false;
-    static  boolean		menuactivestate = false;
-    static  boolean		inhelpscreensstate = false;
-    static  boolean		fullscreen = false;
+    static  dboolean		viewactivestate = false;
+    static  dboolean		menuactivestate = false;
+    static  dboolean		inhelpscreensstate = false;
+    static  dboolean		fullscreen = false;
     static  gamestate_t		oldgamestate = -1;
     static  int			borderdrawcount;
     int				nowtime;
     int				tics;
     int				wipestart;
     int				y;
-    boolean			done;
-    boolean			wipe;
-    boolean			redrawsbar;
+    dboolean			done;
+    dboolean			wipe;
+    dboolean			redrawsbar;
 
     if (nodrawers)
 	return;                    // for comparative timing / profiling
@@ -349,7 +349,7 @@ void D_Display (void)
 //
 //  D_DoomLoop
 //
-extern  boolean         demorecording;
+extern  dboolean         demorecording;
 
 void D_DoomLoop (void)
 {

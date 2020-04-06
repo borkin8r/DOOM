@@ -23,8 +23,9 @@
 #ifndef __M_BBOX__
 #define __M_BBOX__
 
-#include <values.h>
-
+#ifdef LINUX
+    #include <values.h>
+#endif
 #include "m_fixed.h"
 
 

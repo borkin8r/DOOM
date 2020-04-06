@@ -29,7 +29,7 @@
 #endif
 
 
-boolean	P_GivePower(player_t*, int);
+dboolean	P_GivePower(player_t*, int);
 
 
 

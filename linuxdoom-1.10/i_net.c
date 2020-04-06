@@ -66,7 +66,7 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 #define htons(x) ntohs(x)
 
 void	NetSend (void);
-boolean NetListen (void);
+dboolean NetListen (void);
 
 
 //
@@ -243,7 +243,7 @@ int GetLocalAddress (void)
 //
 void I_InitNetwork (void)
 {
-    boolean		trueval = true;
+    dboolean		trueval = true;
     int			i;
     int			p;
     struct hostent*	hostentry;	// host information entry

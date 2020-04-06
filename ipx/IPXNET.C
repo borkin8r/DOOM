@@ -229,7 +229,7 @@ int GetPacket (void)
 
 // if multiple packets are waiting, return them in order by time
 
-     besttic = MAXLONG;
+     besttic = DMAXLONG;
      packetnum = -1;
      doomcom.remotenode = -1;
 
@@ -247,7 +247,7 @@ int GetPacket (void)
           }
      }
 
-     if (besttic == MAXLONG)
+     if (besttic == DMAXLONG)
           return 0;                           // no packets
 
      packet = &packets[packetnum];

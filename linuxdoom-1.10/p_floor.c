@@ -50,11 +50,11 @@ T_MovePlane
 ( sector_t*	sector,
   fixed_t	speed,
   fixed_t	dest,
-  boolean	crush,
+  dboolean	crush,
   int		floorOrCeiling,
   int		direction )
 {
-    boolean	flag;
+    dboolean	flag;
     fixed_t	lastpos;
 	
     switch(floorOrCeiling)
@@ -371,7 +371,7 @@ EV_DoFloor
 
 	  case raiseToTexture:
 	  {
-	      int	minsize = MAXINT;
+	      int	minsize = DMAXINT;
 	      side_t*	side;
 				
 	      floor->direction = 1;

@@ -1,3 +1,24 @@
+// Emacs style mode select   -*- C++ -*- 
+//-----------------------------------------------------------------------------
+//
+// $Id:$
+//
+//
+// This source is available for distribution and/or modification
+// only under the terms of the DOOM Source Code License as
+// published by id Software. All rights reserved.
+//
+// The source is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
+// for more details.
+//
+// DESCRIPTION:
+//	windows platform entry point for starting doom
+//	 
+//    
+//-----------------------------------------------------------------------------
+
 
 #ifndef UNICODE
 #define UNICODE
@@ -5,6 +26,14 @@
 
 #include <windows.h>
 #include <tchar.h>
+
+#include "doomdef.h"
+
+#include "m_argv.h"
+#include "d_main.h"
+
+static const char
+rcsid[] = "$Id: i_main.c,v 1.4 1997/02/03 22:45:10 b1 Exp $";
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -14,7 +43,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevHInstance, PWSTR pCmdLine
     const wchar_t CLASS_NAME[]  = L"win32doom";
     
     WNDCLASSEXW wc = {0};
-
     wc.lpfnWndProc   = WindowProc;
     wc.hInstance     = hInstance;
     wc.lpszClassName = CLASS_NAME;
@@ -24,8 +52,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevHInstance, PWSTR pCmdLine
     if (!RegisterClassExW(&wc))
     {
         MessageBox(NULL,
-            _T("Call to RegisterClassExW failed!"),
-            _T("Windows Desktop Guided Tour"),
+            _T(L"Call to RegisterClassExW failed!"),
+            _T(L"Windows Desktop Guided Tour"),
             0);
 
         return 1;
