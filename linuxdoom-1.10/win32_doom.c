@@ -12,17 +12,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevHInstance, PWSTR pCmdLine
     // Register the window class.
     const wchar_t CLASS_NAME[]  = L"Sample Window Class";
     
-    WNDCLASSW wc = {0};
+    WNDCLASSEXW wc = {0};
 
     wc.lpfnWndProc   = WindowProc;
     wc.hInstance     = hInstance;
     wc.lpszClassName = CLASS_NAME;
 
-    RegisterClass(&wc);
+    RegisterClassExW(&wc);
 
     // Create the window.
 
-    HWND hwnd = CreateWindowEx(
+    HWND hwnd = CreateWindowExW(
         0,                              // Optional window styles.
         CLASS_NAME,                     // Window class
         L"Learn to Program Windows",    // Window text
