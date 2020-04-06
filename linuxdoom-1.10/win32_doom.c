@@ -4,6 +4,7 @@
 // #endif 
 
 #include <windows.h>
+#include <tchar.h>
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -17,6 +18,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevHInstance, PWSTR pCmdLine
     wc.lpfnWndProc   = WindowProc;
     wc.hInstance     = hInstance;
     wc.lpszClassName = CLASS_NAME;
+    wc.cbSize = sizeof(WNDCLASSEXW);
 
     RegisterClassExW(&wc);
 
