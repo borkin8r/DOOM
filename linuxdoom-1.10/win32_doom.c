@@ -11,7 +11,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevHInstance, PWSTR pCmdLine, int nCmdShow)
 {
     // Register the window class.
-    const wchar_t CLASS_NAME[]  = L"Sample Window Class";
+    const wchar_t CLASS_NAME[]  = L"win32doom";
     
     WNDCLASSEXW wc = {0};
 
@@ -20,14 +20,22 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevHInstance, PWSTR pCmdLine
     wc.lpszClassName = CLASS_NAME;
     wc.cbSize = sizeof(WNDCLASSEXW);
 
-    RegisterClassExW(&wc);
+    
+    if (!RegisterClassExW(&wc))
+    {
+        MessageBox(NULL,
+            _T("Call to RegisterClassExW failed!"),
+            _T("Windows Desktop Guided Tour"),
+            0);
 
+        return 1;
+    }
     // Create the window.
-
+    
     HWND hwnd = CreateWindowExW(
         0,                              // Optional window styles.
         CLASS_NAME,                     // Window class
-        L"Learn to Program Windows",    // Window text
+        "win32 DooM",    // Window text, doesn't need L prepend?
         WS_OVERLAPPEDWINDOW,            // Window style
 
         // Size and position
