@@ -1,7 +1,7 @@
 
-// #ifndef UNICODE
-// #define UNICODE
-// #endif 
+#ifndef UNICODE
+#define UNICODE
+#endif 
 
 #include <windows.h>
 #include <tchar.h>
@@ -35,7 +35,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevHInstance, PWSTR pCmdLine
     HWND hwnd = CreateWindowExW(
         0,                              // Optional window styles.
         CLASS_NAME,                     // Window class
-        "win32 DooM",    // Window text, doesn't need L prepend?
+        L"win32 DooM",                  // Window text
         WS_OVERLAPPEDWINDOW,            // Window style
 
         // Size and position
