@@ -1,1 +1,0 @@
-cl -Zi win32_doom.c user32.lib gdi32.lib
