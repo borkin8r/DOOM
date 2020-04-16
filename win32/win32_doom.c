@@ -25,12 +25,10 @@
 #endif 
 
 #include <windows.h>
-#include <tchar.h>
 
 #include "doomdef.h"
 
 #include "m_argv.h"
-#include "d_main.h"
 
 static const char
 rcsid[] = "$Id: i_main.c,v 1.4 1997/02/03 22:45:10 b1 Exp $";
@@ -51,9 +49,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevHInstance, PWSTR pCmdLine
     
     if (!RegisterClassExW(&wc))
     {
-        MessageBox(NULL,
-            _T(L"Call to RegisterClassExW failed!"),
-            _T(L"Windows Desktop Guided Tour"),
+        MessageBoxW(NULL,
+            L"Call to RegisterClassExW failed!",
+            L"Windows Desktop Guided Tour",
             0);
 
         return 1;
@@ -83,12 +81,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevHInstance, PWSTR pCmdLine
     ShowWindow(hwnd, nCmdShow);
 
     // Run the message loop.
-
+    // TODO: D_DoomMain() all setup before loop, put in D_DoomInitialize()?
     MSG msg = {0};
     while (GetMessage(&msg, NULL, 0, 0))
     {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
+        // TODO: expand D_DoomLoop() here
     }
 
     return 0;

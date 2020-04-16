@@ -14,6 +14,7 @@ LIBS=-lXext -lX11 -lnsl -lm
 # subdirectory for objects
 O=..\build\win32
 
+WDEPS=C:\
 
 # not too sophisticated dependency
 OBJS=				\
@@ -90,14 +91,17 @@ $(O)/win32doom:	makebuilddir $(OBJS) main
 	/o $(O)/win32doom.exe $(LIBS)
 
 $(OBJS): $*.c
-	$(CC) $(CFLAGS) /Fo"$(O)\$*.obj" /c $*.c 
+	$(CC) $(CFLAGS) /Fo "$(O)\$*.obj" /c $*.c 
 
 main: win32_doom.c
-	$(CC) $(CFLAGS) /Fo"$(O)\win32doom.obj" /c win32_doom.c 
+	$(CC) /DEBUG win32_doom.c user32.lib /link /out:"$(O)\win32doom.exe" 
 
 makebuilddir:
 	@mkdir "$(O)"
 
+run:
+	$(O)\win32doom.exe
+
 #############################################################
-#
+# 
 #############################################################
