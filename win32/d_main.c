@@ -32,14 +32,15 @@ static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 
 
 #ifdef NORMALUNIX
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <unistd.h> //R_OK, access()
+	#include <sys/types.h>
+	#include <sys/stat.h>
+	#include <fcntl.h>
+#elif WIN32
+	#include "win32_layer.h"
 #endif
-
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -345,29 +346,31 @@ void D_Display (void)
 }
 
 
-
 //
-//  D_DoomLoop
-//
-extern  dboolean         demorecording;
-
-void D_DoomLoop (void)
-{
-    if (demorecording)
-	G_BeginRecording ();
+// D_DoomInit
+// 
+void D_DoomInit(void) {
+	if (demorecording)
+		G_BeginRecording ();
 		
     if (M_CheckParm ("-debugfile"))
     {
-	char    filename[20];
-	sprintf (filename,"debug%i.txt",consoleplayer);
-	printf ("debug output to: %s\n",filename);
-	debugfile = fopen (filename,"w");
+		char    filename[20];
+		sprintf (filename,"debug%i.txt",consoleplayer);
+		printf ("debug output to: %s\n",filename);
+		debugfile = fopen (filename,"w");
     }
 	
     I_InitGraphics ();
+}
 
-    while (1)
-    {
+//
+//  D_DoomStep ; to be called from an infinite loop
+//
+extern  dboolean         demorecording;
+
+void D_DoomStep (void)
+{
 	// frame syncronous IO operations
 	I_StartFrame ();                
 	
@@ -403,7 +406,6 @@ void D_DoomLoop (void)
 	// Update sound output.
 	I_SubmitSound();
 #endif
-    }
 }
 
 

@@ -27,8 +27,8 @@
 #include <windows.h>
 
 #include "doomdef.h"
-
 #include "m_argv.h"
+#include "d_main.h"
 
 static const char
 rcsid[] = "$Id: i_main.c,v 1.4 1997/02/03 22:45:10 b1 Exp $";
@@ -80,14 +80,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevHInstance, PWSTR pCmdLine
 
     ShowWindow(hwnd, nCmdShow);
 
+    D_DoomInit();
+
     // Run the message loop.
-    // TODO: D_DoomMain() all setup before loop, put in D_DoomInitialize()?
     MSG msg = {0};
     while (GetMessage(&msg, NULL, 0, 0))
     {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
-        // TODO: expand D_DoomLoop() here
+        D_DoomStep();
     }
 
     return 0;
@@ -117,3 +118,4 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
+

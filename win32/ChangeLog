@@ -1,4 +1,10 @@
-Tue Apr 14 10:47:33 2020 <jlbork@mtu.edu>
+Tue Apr 21 23:47:33 2020 <jlbork@mtu.edu>
+	* created win32_layer to help replace unix library functions/defines
+	  with windows equivalents.
+    * nmake all ran with lots of unresolved errors; can finally go through them
+
+
+Tue Apr 14 22:47:33 2020 <jlbork@mtu.edu>
 	* began working on win32 build; create win32 main file and (n)makefile
 
 
