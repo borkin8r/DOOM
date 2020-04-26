@@ -7,7 +7,7 @@
 
 CC=cl  # gcc or g++
 
-CFLAGS=/Wall /DWIN32# -DUSEASM 
+CFLAGS=/DWIN32# -DUSEASM /Wall 
 LDFLAGS=-L/usr/X11R6/lib
 LIBS=-lXext -lX11 -lnsl -lm
 
@@ -79,15 +79,16 @@ OBJS=				\
 		{$(O)\}z_zone.obj			\
 		{$(O)\}info.obj				\
 		{$(O)\}sounds.obj 		\
-		{$(O)\}win32_layer.obj
+		{$(O)\}win32_layer.obj \
+		{$(O)\}win32_doom.obj
 
 all:	 $(O)/win32doom
 
 clean:
 	@del /f *.obj
-	rm -f ../build/win32/*
+	@rmdir /s ..\build\win32
 
-$(O)/win32doom:	makebuilddir $(OBJS) main
+$(O)/win32doom:	makebuilddir $(OBJS) 
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(O)/i_main.obj \
 	/o $(O)/win32doom.exe $(LIBS)
 
@@ -98,7 +99,7 @@ main: win32_doom.c
 	$(CC) $(CFLAGS) /DEBUG win32_doom.c d_main.c win32_layer.c user32.lib /link /out:"$(O)\win32doom.exe" 
 
 makebuilddir:
-	@mkdir "$(O)"
+	if not exist "$(O)" @mkdir "$(O)"
 
 run:
 	$(O)\win32doom.exe

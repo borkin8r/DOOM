@@ -24,13 +24,15 @@ static const char
 rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#ifdef NORMALUNIX
+    #include <stdlib.h>
+    #include <stdio.h>
+    #include <string.h>
 
-#include <stdarg.h>
-#include <sys/time.h>
-#include <unistd.h>
+    #include <stdarg.h>
+    #include <sys/time.h>
+    #include <unistd.h>
+#endif
 
 #include "doomdef.h"
 #include "m_misc.h"
