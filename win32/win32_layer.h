@@ -5,4 +5,6 @@
 
 int access(const char* filename, int mode);
 
+int gettickcount();
+
 #endif

@@ -32,6 +32,8 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
     #include <stdarg.h>
     #include <sys/time.h>
     #include <unistd.h>
+#elif WIN32
+    #include "win32_layer.h"
 #endif
 
 #include "doomdef.h"
@@ -85,19 +87,17 @@ byte* I_ZoneBase (int*	size)
 
 //
 // I_GetTime
-// returns time in 1/70th second tics
+// returns milliseconds since system started; wraps every 49.7 days
+// high resolution timer may be better suited
 //
 int  I_GetTime (void)
 {
-    struct timeval	tp;
-    struct timezone	tzp;
     int			newtics;
     static int		basetime=0;
   
-    gettimeofday(&tp, &tzp);
+    newtics = gettickcount();
     if (!basetime)
-	basetime = tp.tv_sec;
-    newtics = (tp.tv_sec-basetime)*TICRATE + tp.tv_usec*TICRATE/1000000;
+	   basetime = newtics;
     return newtics;
 }
 
