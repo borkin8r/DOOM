@@ -29,12 +29,15 @@ rcsid[] = "$Id: i_unix.c,v 1.5 1997/02/03 22:45:10 b1 Exp $";
 #include <stdarg.h>
 
 #include <math.h>
-
-#include <sys/time.h>
-#include <sys/types.h>
+#ifdef NORMALUNIX
+  #include <sys/time.h>
+  #include <sys/types.h>
+#elif WIN32
+  #include "win32_layer.h"
+#endif
 
 #ifndef LINUX
-#include <sys/filio.h>
+  #include <sys/filio.h>
 #endif
 
 #include <fcntl.h>

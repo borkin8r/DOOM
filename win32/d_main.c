@@ -40,6 +40,8 @@ static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 	#include <fcntl.h>
 #elif WIN32
 	#include "win32_layer.h"
+	#include <stdlib.h>
+	#include <stdio.h>
 #endif
 
 #include "doomdef.h"
@@ -614,6 +616,48 @@ void IdentifyVersion (void)
     if (!home)
       I_Error("Please set $HOME to your home directory");
     sprintf(basedefault, "%s/.doomrc", home);
+
+#elif WIN32
+    char *home;
+    char *doomwaddir;
+    doomwaddir = getenv("DOOMWADDIR");
+    if (!doomwaddir)
+	doomwaddir = ".";
+
+    // Commercial.
+    doom2wad = malloc(strlen(doomwaddir)+1+9+1);
+    sprintf(doom2wad, "%s/doom2.wad", doomwaddir);
+
+    // Retail.
+    doomuwad = malloc(strlen(doomwaddir)+1+8+1);
+    sprintf(doomuwad, "%s/doomu.wad", doomwaddir);
+    
+    // Registered.
+    doomwad = malloc(strlen(doomwaddir)+1+8+1);
+    sprintf(doomwad, "%s/doom.wad", doomwaddir);
+    
+    // Shareware.
+    doom1wad = malloc(strlen(doomwaddir)+1+9+1);
+    sprintf(doom1wad, "%s/doom1.wad", doomwaddir);
+
+     // Bug, dear Shawn.
+    // Insufficient malloc, caused spurious realloc errors.
+    plutoniawad = malloc(strlen(doomwaddir)+1+/*9*/12+1);
+    sprintf(plutoniawad, "%s/plutonia.wad", doomwaddir);
+
+    tntwad = malloc(strlen(doomwaddir)+1+9+1);
+    sprintf(tntwad, "%s/tnt.wad", doomwaddir);
+
+
+    // French stuff.
+    doom2fwad = malloc(strlen(doomwaddir)+1+10+1);
+    sprintf(doom2fwad, "%s/doom2f.wad", doomwaddir);
+
+    home = getenv("HOME");
+    if (!home)
+      I_Error("Please set $HOME to your home directory");
+    sprintf(basedefault, "%s/.doomrc", home);
+
 #endif
 
     if (M_CheckParm ("-shdev"))
