@@ -36,7 +36,9 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
     #include <netdb.h>
     #include <sys/ioctl.h>
 #elif WIN32
-    #include "win32_layer.h"
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #define IPPORT_USERRESERVED 5000 // TODO: check range for windows
 #endif
 
 #include <errno.h>
@@ -78,6 +80,7 @@ dboolean NetListen (void);
 //
 // NETWORKING
 //
+
 
 int	DOOMPORT =	(IPPORT_USERRESERVED +0x1d );
 
