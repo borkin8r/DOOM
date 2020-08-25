@@ -35,7 +35,7 @@ rcsid[] = "$Id: i_unix.c,v 1.5 1997/02/03 22:45:10 b1 Exp $";
 #elif WIN32
   #include "win32_layer.h"
   #include "win32_doom.h"
-  unsigned int timerId = 0
+  unsigned int timerId = 0;
 #endif
 
 #if !defined(LINUX) && !defined(WIN32)
