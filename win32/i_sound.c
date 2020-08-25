@@ -34,18 +34,23 @@ rcsid[] = "$Id: i_unix.c,v 1.5 1997/02/03 22:45:10 b1 Exp $";
   #include <sys/types.h>
 #elif WIN32
   #include "win32_layer.h"
+  #include "win32_doom.h"
+  
 #endif
 
-#ifndef LINUX
+#if !defined(LINUX) && !defined(WIN32)
   #include <sys/filio.h>
 #endif
 
 #include <fcntl.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
+#if defined(LINUX) || defined(NORMALUNIX)
+  #include <unistd.h>
+  #include <sys/ioctl.h>
+  // Linux voxware output.
+  #include <linux/soundcard.h>
+#endif
 
-// Linux voxware output.
-#include <linux/soundcard.h>
+
 
 // Timer stuff. Experimental.
 #include <time.h>
@@ -152,7 +157,6 @@ int		vol_lookup[128*256];
 // Hardware left and right channel volume lookup.
 int*		channelleftvol_lookup[NUM_CHANNELS];
 int*		channelrightvol_lookup[NUM_CHANNELS];
-
 
 
 
@@ -751,7 +755,7 @@ I_InitSound()
     sprintf(buffer, "%s", sndserver_filename);
   
   // start sound process
-  if ( !access(buffer, X_OK) )
+  if ( !access(buffer, X_OK) ) // TODO win32: valid for X_OK == 0x00 ?
   {
     strcat(buffer, " -quiet");
     sndserver = popen(buffer, "w");
@@ -907,14 +911,15 @@ int I_QrySongPlaying(int handle)
     typedef     int             tSigSet;
 #endif
 
+#ifndef WIN32
+  // We might use SIGVTALRM and ITIMER_VIRTUAL, if the process
+  //  time independend timer happens to get lost due to heavy load.
+  // SIGALRM and ITIMER_REAL doesn't really work well.
+  // There are issues with profiling as well.
+  static int /*__itimer_which*/  itimer = ITIMER_REAL;
 
-// We might use SIGVTALRM and ITIMER_VIRTUAL, if the process
-//  time independend timer happens to get lost due to heavy load.
-// SIGALRM and ITIMER_REAL doesn't really work well.
-// There are issues with profiling as well.
-static int /*__itimer_which*/  itimer = ITIMER_REAL;
-
-static int sig = SIGALRM;
+  static int sig = SIGALRM;
+#endif
 
 // Interrupt handler.
 void I_HandleSoundTimer( int ignore )
@@ -943,6 +948,7 @@ void I_HandleSoundTimer( int ignore )
 // Get the interrupt. Set duration in millisecs.
 int I_SoundSetTimer( int duration_of_tick )
 {
+#ifndef WIN32
   // Needed for gametick clockwork.
   struct itimerval    value;
   struct itimerval    ovalue;
@@ -969,13 +975,18 @@ int I_SoundSetTimer( int duration_of_tick )
   value.it_value.tv_usec      = duration_of_tick;
 
   // Error is -1.
-  res = setitimer( itimer, &value, &ovalue );
+  res = setitimer( itimer, &value, &ovalue ); // SIGALARM interrupt
 
   // Debug.
   if ( res == -1 )
     fprintf( stderr, "I_SoundSetTimer: interrupt n.a.\n");
   
   return res;
+#else WIN32
+  timerId = SetTimer(doomWindow, timerId, duration_of_tick);
+  return 0;
+#endif
+  
 }
 
 

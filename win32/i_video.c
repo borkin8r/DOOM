@@ -25,28 +25,43 @@ static const char
 rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 
 #include <stdlib.h>
-#include <unistd.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
+#ifndef WIN32
+	#include <unistd.h>
+	#include <sys/ipc.h>
+	#include <sys/shm.h>
 
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/keysym.h>
+	#include <X11/Xlib.h>
+	#include <X11/Xutil.h>
+	#include <X11/keysym.h>
 
-#include <X11/extensions/XShm.h>
-// Had to dig up XShm.c for this one.
-// It is in the libXext, but not in the XFree86 headers.
-#ifdef LINUX
-int XShmGetEventBase( Display* dpy ); // problems with g++?
+	#include <X11/extensions/XShm.h>
+	#include <sys/time.h>
+	#include <sys/socket.h>
+	#include <netinet/in.h>
+	#include <errnos.h>
+
+	#ifdef LINUX
+	int XShmGetEventBase( Display* dpy ); // problems with g++?
+	#endif
+
+	Display*	X_display=0;
+	Window		X_mainWindow;
+	Colormap	X_cmap;
+	Visual*		X_visual;
+	GC		X_gc;
+	XEvent		X_event;
+	XVisualInfo	X_visualinfo;
+	XImage*		image;
+	XShmSegmentInfo	X_shminfo;
 #endif
 
-#include <stdarg.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 
-#include <netinet/in.h>
-#include <errnos.h>
+// Had to dig up XShm.c for this one.
+// It is in the libXext, but not in the XFree86 headers.
+
+
+#include <stdarg.h>
+#include <sys/types.h>
 #include <signal.h>
 
 #include "doomstat.h"
@@ -59,22 +74,13 @@ int XShmGetEventBase( Display* dpy ); // problems with g++?
 
 #define POINTER_WARP_COUNTDOWN	1
 
-Display*	X_display=0;
-Window		X_mainWindow;
-Colormap	X_cmap;
-Visual*		X_visual;
-GC		X_gc;
-XEvent		X_event;
 int		X_screen;
-XVisualInfo	X_visualinfo;
-XImage*		image;
 int		X_width;
 int		X_height;
 
 // MIT SHared Memory extension.
 dboolean		doShm;
 
-XShmSegmentInfo	X_shminfo;
 int		X_shmeventtype;
 
 // Fake mouse handling.
@@ -96,9 +102,9 @@ static int	multiply=1;
 
 int xlatekey(void)
 {
-
+	int rc = 0;
+#ifndef WIN32
     int rc;
-
     switch(rc = XKeycodeToKeysym(X_display, X_event.xkey.keycode, 0))
     {
       case XK_Left:	rc = KEY_LEFTARROW;	break;
@@ -156,13 +162,14 @@ int xlatekey(void)
 	    rc = rc - 'A' + 'a';
 	break;
     }
-
+#endif
     return rc;
 
 }
 
 void I_ShutdownGraphics(void)
 {
+#ifndef WIN32
   // Detach from X server
   if (!XShmDetach(X_display, &X_shminfo))
 	    I_Error("XShmDetach() failed in I_ShutdownGraphics()");
@@ -173,6 +180,7 @@ void I_ShutdownGraphics(void)
 
   // Paranoia.
   image->data = NULL;
+#endif
 }
 
 
@@ -193,9 +201,8 @@ dboolean		shmFinished;
 
 void I_GetEvent(void)
 {
-
+#ifndef WIN32
     event_t event;
-
     // put event-grabbing stuff in here
     XNextEvent(X_display, &X_event);
     switch (X_event.type)
@@ -275,9 +282,9 @@ void I_GetEvent(void)
 	if (doShm && X_event.type == X_shmeventtype) shmFinished = true;
 	break;
     }
-
+#endif
 }
-
+#ifndef WIN32
 Cursor
 createnullcursor
 ( Display*	display,
@@ -302,13 +309,13 @@ createnullcursor
     XFreeGC(display,gc);
     return cursor;
 }
-
+#endif
 //
 // I_StartTic
 //
 void I_StartTic (void)
 {
-
+#ifndef WIN32
     if (!X_display)
 	return;
 
@@ -334,7 +341,7 @@ void I_StartTic (void)
     }
 
     mousemoved = false;
-
+#endif
 }
 
 
@@ -382,11 +389,11 @@ void I_FinishUpdate (void)
 	unsigned int twoopixels;
 	unsigned int twomoreopixels;
 	unsigned int fouripixels;
-
+#ifndef WIN32
 	ilineptr = (unsigned int *) (screens[0]);
 	for (i=0 ; i<2 ; i++)
 	    olineptrs[i] = (unsigned int *) &image->data[i*X_width];
-
+#endif
 	y = SCREENHEIGHT;
 	while (y--)
 	{
@@ -426,9 +433,10 @@ void I_FinishUpdate (void)
 	unsigned int fouripixels;
 
 	ilineptr = (unsigned int *) (screens[0]);
+	#ifndef WIN32
 	for (i=0 ; i<3 ; i++)
 	    olineptrs[i] = (unsigned int *) &image->data[i*X_width];
-
+	#endif
 	y = SCREENHEIGHT;
 	while (y--)
 	{
@@ -476,13 +484,14 @@ void I_FinishUpdate (void)
     else if (multiply == 4)
     {
 	// Broken. Gotta fix this some day.
+	#ifndef WIN32
 	void Expand4(unsigned *, double *);
   	Expand4 ((unsigned *)(screens[0]), (double *) (image->data));
+  	#endif
     }
-
+#ifndef WIN32
     if (doShm)
     {
-
 	if (!XShmPutImage(	X_display,
 				X_mainWindow,
 				X_gc,
@@ -517,7 +526,7 @@ void I_FinishUpdate (void)
 	XSync(X_display, False);
 
     }
-
+#endif
 }
 
 
@@ -529,7 +538,7 @@ void I_ReadScreen (byte* scr)
     memcpy (scr, screens[0], SCREENWIDTH*SCREENHEIGHT);
 }
 
-
+#ifndef WIN32
 //
 // Palette stuff.
 //
@@ -583,7 +592,6 @@ void I_SetPalette (byte* palette)
 {
     UploadNewPalette(X_cmap, palette);
 }
-
 
 //
 // This function is probably redundant,
@@ -679,7 +687,7 @@ void grabsharedmemory(int size)
     I_Error("Sorry, system too polluted with stale "
 	    "shared memory segments.\n");
     }	
-  
+  #ifndef WIN32
   X_shminfo.shmid = id;
   
   // attach to the shared memory segment
@@ -687,11 +695,13 @@ void grabsharedmemory(int size)
   
   fprintf(stderr, "shared memory id=%d, addr=0x%x\n", id,
 	  (int) (image->data));
+  #endif
 }
+#endif
 
 void I_InitGraphics(void)
 {
-
+#ifndef WIN32
     char*		displayname;
     char*		d;
     int			n;
@@ -911,7 +921,7 @@ void I_InitGraphics(void)
 	screens[0] = (unsigned char *) (image->data);
     else
 	screens[0] = (unsigned char *) malloc (SCREENWIDTH * SCREENHEIGHT);
-
+#endif
 }
 
 
