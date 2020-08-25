@@ -35,7 +35,7 @@ extern char* sndserver_filename;
 #include "doomstat.h"
 #include "sounds.h"
 
-extern unsigned int timerId;
+extern unsigned int timerId = 0;
 
 // Init at program start...
 void I_InitSound();
