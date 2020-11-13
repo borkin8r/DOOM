@@ -121,10 +121,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         case WM_TIMER: 
         {
-            if (wParam == timerId) 
-            { 
-                return 0; 
-            } 
+            // if (wParam == timerId) 
+            // { 
+            //     return 0; 
+            // } 
         }
     }
     

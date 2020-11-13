@@ -32,17 +32,16 @@ static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 
 
 #ifdef NORMALUNIX
-	#include <stdio.h>
-	#include <stdlib.h>
 	#include <unistd.h> //R_OK, access()
 	#include <sys/types.h>
 	#include <sys/stat.h>
 	#include <fcntl.h>
 #elif WIN32
 	#include "win32_layer.h"
-	#include <stdlib.h>
-	#include <stdio.h>
 #endif
+
+#include <stdio.h>
+#include <stdlib.h> 
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -275,7 +274,10 @@ void D_Display (void)
     
     // clean up border stuff
     if (gamestate != oldgamestate && gamestate != GS_LEVEL)
-	I_SetPalette (W_CacheLumpName ("PLAYPAL",PU_CACHE));
+    {
+        byte * name = W_CacheLumpName ("PLAYPAL",PU_CACHE);
+        I_SetPalette (name);
+    }
 
     // see if the border needs to be initially drawn
     if (gamestate == GS_LEVEL && oldgamestate != GS_LEVEL)
