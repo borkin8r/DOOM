@@ -841,7 +841,7 @@ void FindResponseFile (void)
 //
 // D_DoomMain
 //
-void D_DoomMain (void)
+void D_DoomSetup (void)
 {
     int             p;
     char                    file[256];
@@ -1185,14 +1185,14 @@ void D_DoomMain (void)
     {
 	singledemo = true;              // quit after one demo
 	G_DeferedPlayDemo (myargv[p+1]);
-	D_DoomLoop ();  // never returns
+	return;
     }
 	
     p = M_CheckParm ("-timedemo");
     if (p && p < myargc-1)
     {
 	G_TimeDemo (myargv[p+1]);
-	D_DoomLoop ();  // never returns
+	return;
     }
 	
     p = M_CheckParm ("-loadgame");
@@ -1214,6 +1214,4 @@ void D_DoomMain (void)
 	    D_StartTitle ();                // start up intro loop
 
     }
-
-    D_DoomLoop ();  // never returns
 }

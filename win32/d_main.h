@@ -56,7 +56,7 @@ void D_PostEvent (event_t* ev);
 // and D_DoomStep is to be called on each iteration of the win32 main infinite loop.
 void D_DoomStep (void);
 void D_DoomInit (void); 
-
+void D_DoomSetup (void);
 	
 
 //

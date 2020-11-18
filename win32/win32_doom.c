@@ -37,7 +37,7 @@ rcsid[] = "$Id: i_main.c,v 1.4 1997/02/03 22:45:10 b1 Exp $";
 
 void* doomWindow = NULL;
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevHInstance, PWSTR pCmdLine, int nCmdShow)
 {
@@ -45,7 +45,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevHInstance, PWSTR pCmdLine
     const wchar_t CLASS_NAME[]  = L"win32doom";
     
     WNDCLASSEXW wc = {0};
-    wc.lpfnWndProc   = WindowProc;
+    wc.lpfnWndProc   = WindowCallback;
     wc.hInstance     = hInstance;
     wc.lpszClassName = CLASS_NAME;
     wc.cbSize = sizeof(WNDCLASSEXW);
@@ -84,6 +84,18 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevHInstance, PWSTR pCmdLine
 
     ShowWindow(doomWindow, nCmdShow);
 
+    //TODO: set globals:
+    // int zeroOnSuccess = __wgetmainargs (
+    // int *_Argc,
+    // wchar_t ***_Argv,
+    // wchar_t ***_Env,
+    // int _DoWildCard,
+    // _startupinfo * _StartInfo)
+    // myargc = argc; 
+    // myargv = argv;  
+
+    D_DoomSetup();
+
     D_DoomInit();
 
     // Run the message loop.
@@ -98,26 +110,25 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevHInstance, PWSTR pCmdLine
     return 0;
 }
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    int result = 0;
     switch (uMsg)
     {
         case WM_DESTROY: 
         {
             PostQuitMessage(0);
-            return 0;
         }
         case WM_PAINT:
         {
-                PAINTSTRUCT ps;
-                HDC hdc = BeginPaint(hwnd, &ps);
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hwnd, &ps);
 
 
 
-                FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
+            FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
 
-                EndPaint(hwnd, &ps);
-            return 0;
+            EndPaint(hwnd, &ps);
         }
         case WM_TIMER: 
         {
@@ -126,6 +137,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             //     return 0; 
             // } 
         }
+        default:
+        {
+            result = DefWindowProcA(hwnd, uMsg, wParam, lParam);
+        }
+
+        return result;
     }
     
         
