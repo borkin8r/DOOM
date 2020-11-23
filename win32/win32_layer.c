@@ -9,3 +9,7 @@ int access(const char* filename, int mode) {
 int gettickcount() {
 	return GetTickCount();
 }
+
+void sleep(int milliseconds) {
+	Sleep(milliseconds);
+}

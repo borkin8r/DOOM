@@ -42,9 +42,13 @@ rcsid[] = "$Id: r_data.c,v 1.4 1997/02/03 16:47:55 b1 Exp $";
 #include "r_sky.h"
 
 #ifdef LINUX
-#include  <alloca.h>
+    #include  <alloca.h>
+#elif defined(WIN32)
+    #include <malloc.h>
+    #include <string.h>
+    #define alloca _alloca
+    #define strncasecmp _strnicmp
 #endif
-
 
 #include "r_data.h"
 

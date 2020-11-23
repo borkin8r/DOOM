@@ -130,7 +130,7 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
             EndPaint(hwnd, &ps);
         }
-        case WM_TIMER: 
+        case WM_TIMER: // or settimer callback function
         {
             // if (wParam == timerId) 
             // { 

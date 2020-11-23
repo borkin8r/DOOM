@@ -34,6 +34,7 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
     #include <unistd.h>
 #elif WIN32
     #include "win32_layer.h"
+    #include <stdarg.h>
 #endif
 
 #include "doomdef.h"
@@ -132,6 +133,8 @@ void I_WaitVBL(int count)
 #else
 #ifdef SUN
     sleep(0);
+#elif defined(WIN32)
+    sleep(count * (1000/70)); //TODO: correct? Sleep uses milliseconds
 #else
     usleep (count * (1000000/70) );                                
 #endif

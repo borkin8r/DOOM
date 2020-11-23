@@ -8,4 +8,6 @@ int access(const char* filename, int mode);
 
 int gettickcount();
 
+int sleep(int milliseconds);
+
 #endif

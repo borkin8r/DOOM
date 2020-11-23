@@ -53,7 +53,12 @@ rcsid[] = "$Id: w_wad.c,v 1.5 1997/02/03 16:47:57 b1 Exp $";
 #include "w_wad.h"
 
 
-
+#ifdef WIN32
+    #include <string.h>
+    #define strncasecmp _strnicmp
+    #define strcasecmp _stricmp
+    #include <malloc.h>
+#endif
 
 
 
@@ -70,10 +75,12 @@ void**			lumpcache;
 
 #define strcmpi	strcasecmp
 
+#if !defined(WIN32)
 void strupr (char* s)
 {
     while (*s) { *s = toupper(*s); s++; }
 }
+#endif
 
 int filelength (int handle) 
 { 

@@ -48,6 +48,8 @@ rcsid[] = "$Id: i_unix.c,v 1.5 1997/02/03 22:45:10 b1 Exp $";
   #include <sys/ioctl.h>
   // Linux voxware output.
   #include <linux/soundcard.h>
+#elif WIN32
+  #include <winsock2.h>
 #endif
 
 
@@ -171,8 +173,11 @@ myioctl
 {   
     int		rc;
     extern int	errno;
-    
+#if defined(LINUX) || defined(NORMALUNIX)
     rc = ioctl(fd, command, arg);  
+#elif WIN32
+    rc = ioctlsocket(fd, command, arg);  
+#endif
     if (rc < 0)
     {
 	fprintf(stderr, "ioctl(dsp,%d,arg) failed\n", command);
@@ -743,92 +748,8 @@ void I_ShutdownSound(void)
 
 void
 I_InitSound()
-{ 
-#ifdef SNDSERV
-  char buffer[256];
-  
-  if (getenv("DOOMWADDIR"))
-    sprintf(buffer, "%s/%s",
-	    getenv("DOOMWADDIR"),
-	    sndserver_filename);
-  else
-    sprintf(buffer, "%s", sndserver_filename);
-  
-  // start sound process
-  if ( !access(buffer, X_OK) ) // TODO win32: valid for X_OK == 0x00 ?
-  {
-    strcat(buffer, " -quiet");
-    sndserver = popen(buffer, "w");
-  }
-  else
-    fprintf(stderr, "Could not start sound server [%s]\n", buffer);
-#else
-    
-  int i;
-  
-#ifdef SNDINTR
-  fprintf( stderr, "I_SoundSetTimer: %d microsecs\n", SOUND_INTERVAL );
-  I_SoundSetTimer( SOUND_INTERVAL );
-#endif
-    
-  // Secure and configure sound device first.
-  fprintf( stderr, "I_InitSound: ");
-  
-  audio_fd = open("/dev/dsp", O_WRONLY);
-  if (audio_fd<0)
-    fprintf(stderr, "Could not open /dev/dsp\n");
-  
-                     
-  i = 11 | (2<<16);                                           
-  myioctl(audio_fd, SNDCTL_DSP_SETFRAGMENT, &i);
-  myioctl(audio_fd, SNDCTL_DSP_RESET, 0);
-  
-  i=SAMPLERATE;
-  
-  myioctl(audio_fd, SNDCTL_DSP_SPEED, &i);
-  
-  i=1;
-  myioctl(audio_fd, SNDCTL_DSP_STEREO, &i);
-  
-  myioctl(audio_fd, SNDCTL_DSP_GETFMTS, &i);
-  
-  if (i&=AFMT_S16_LE)    
-    myioctl(audio_fd, SNDCTL_DSP_SETFMT, &i);
-  else
-    fprintf(stderr, "Could not play signed 16 data\n");
-
-  fprintf(stderr, " configured audio device\n" );
-
-    
-  // Initialize external data (all sounds) at start, keep static.
-  fprintf( stderr, "I_InitSound: ");
-  
-  for (i=1 ; i<NUMSFX ; i++)
-  { 
-    // Alias? Example is the chaingun sound linked to pistol.
-    if (!S_sfx[i].link)
-    {
-      // Load data from WAD file.
-      S_sfx[i].data = getsfx( S_sfx[i].name, &lengths[i] );
-    }	
-    else
-    {
-      // Previously loaded already?
-      S_sfx[i].data = S_sfx[i].link->data;
-      lengths[i] = lengths[(S_sfx[i].link - S_sfx)/sizeof(sfxinfo_t)];
-    }
-  }
-
-  fprintf( stderr, " pre-cached all sound data\n");
-  
-  // Now initialize mixbuffer with zero.
-  for ( i = 0; i< MIXBUFFERSIZE; i++ )
-    mixbuffer[i] = 0;
-  
-  // Finished initialization.
-  fprintf(stderr, "I_InitSound: sound module ready\n");
-    
-#endif
+{   
+   
 }
 
 
@@ -983,7 +904,7 @@ int I_SoundSetTimer( int duration_of_tick )
   
   return res;
 #else WIN32
-  timerId = SetTimer(doomWindow, timerId, duration_of_tick);
+  timerId = SetTimer(doomWindow, timerId, duration_of_tick, NULL); // NULL could be replaced with callback function pointer
   return 0;
 #endif
   

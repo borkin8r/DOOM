@@ -335,7 +335,11 @@ void I_InitNetwork (void)
     // build message to receive
     insocket = UDPsocket ();
     BindToLocalPort (insocket,htons(DOOMPORT));
+    #if NORMALUNIX
     ioctl (insocket, FIONBIO, &trueval);
+    #elif WIN32
+    ioctlsocket(insocket, FIONBIO, &trueval);
+    #endif
 
     sendsocket = UDPsocket ();
 }
