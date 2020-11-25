@@ -20,16 +20,17 @@
 //-----------------------------------------------------------------------------
 
 
-#ifndef UNICODE
-#define UNICODE
-#endif 
+// #ifndef UNICODE
+// #define UNICODE
+// #endif 
 
 #include <windows.h>
+#include <shellapi.h>
 
 #include "doomdef.h"
 #include "m_argv.h"
 #include "d_main.h"
-#include "win32_doom.h"
+#include "i_win32.h"
 #include "i_sound.h"
 
 static const char
@@ -39,38 +40,32 @@ void* doomWindow = NULL;
 
 LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevHInstance, PWSTR pCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR pCmdLine, int nCmdShow)
 {
     // Register the window class.
-    const wchar_t CLASS_NAME[]  = L"win32doom";
+    const char CLASS_NAME[]  = "win32doom";
     
-    WNDCLASSEXW wc = {0};
+    WNDCLASSEX wc = {0};
     wc.lpfnWndProc   = WindowCallback;
     wc.hInstance     = hInstance;
     wc.lpszClassName = CLASS_NAME;
-    wc.cbSize = sizeof(WNDCLASSEXW);
+    wc.cbSize = sizeof(WNDCLASSEX);
 
     
-    if (!RegisterClassExW(&wc))
+    if (!RegisterClassEx(&wc))
     {
-        MessageBoxW(NULL,
-            L"Call to RegisterClassExW failed!",
-            L"Windows Desktop Guided Tour",
-            0);
-
+        MessageBox(NULL, "Call to RegisterClassEx failed!", "Error!", 0);
         return 1;
     }
     // Create the window.
     
-     doomWindow = CreateWindowExW(
+     doomWindow = CreateWindowEx(
         0,                              // Optional window styles.
         CLASS_NAME,                     // Window class
-        L"win32 DooM",                  // Window text
+        "win32 DooM",                  // Window text
         WS_OVERLAPPEDWINDOW,            // Window style
-
         // Size and position
-        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-
+        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, // , , width, height
         NULL,       // Parent window    
         NULL,       // Menu
         hInstance,  // Instance handle
@@ -83,16 +78,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevHInstance, PWSTR pCmdLine
     }
 
     ShowWindow(doomWindow, nCmdShow);
+    UpdateWindow(hInstance);
 
-    //TODO: set globals:
-    // int zeroOnSuccess = __wgetmainargs (
-    // int *_Argc,
-    // wchar_t ***_Argv,
-    // wchar_t ***_Env,
-    // int _DoWildCard,
-    // _startupinfo * _StartInfo)
-    // myargc = argc; 
-    // myargv = argv;  
+
+    myargc = __argc; 
+    myargv = __argv;  
 
     D_DoomSetup();
 
@@ -115,9 +105,15 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
     int result = 0;
     switch (uMsg)
     {
+        case WM_CLOSE:
+        {
+            DestroyWindow(hwnd);
+            break;
+        }
         case WM_DESTROY: 
         {
             PostQuitMessage(0);
+            break;
         }
         case WM_PAINT:
         {
@@ -129,6 +125,7 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
 
             EndPaint(hwnd, &ps);
+            break;
         }
         case WM_TIMER: // or settimer callback function
         {
