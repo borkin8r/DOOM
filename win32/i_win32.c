@@ -38,6 +38,12 @@ rcsid[] = "$Id: i_main.c,v 1.4 1997/02/03 22:45:10 b1 Exp $";
 
 void* doomWindow = NULL;
 
+static BOOL running;
+static BITMAPINFO bitmapInfo;
+static void* bitmapMemory;
+static HBITMAP bitmapHandle;
+static HDC bitmapDeviceContext;
+
 LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR pCmdLine, int nCmdShow)
@@ -62,7 +68,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR pCmdLine, 
      doomWindow = CreateWindowEx(
         0,                              // Optional window styles.
         CLASS_NAME,                     // Window class
-        "win32 DooM",                  // Window text
+        "win32 DOOM",                  // Window text
         WS_OVERLAPPEDWINDOW,            // Window style
         // Size and position
         CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, // , , width, height
@@ -78,26 +84,58 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR pCmdLine, 
     }
 
     ShowWindow(doomWindow, nCmdShow);
-    UpdateWindow(hInstance);
-
+    UpdateWindow(doomWindow);
 
     myargc = __argc; 
     myargv = __argv;  
 
-    D_DoomSetup();
-
-    D_DoomInit();
+    // D_DoomSetup();
+    // D_DoomInit();
 
     // Run the message loop.
+    running = true;
     MSG msg = {0};
-    while (GetMessage(&msg, NULL, 0, 0))
+    while (running)
     {
+        if (GetMessage(&msg, NULL, 0, 0) < 0)
+        {
+            break;
+        }
+
         TranslateMessage(&msg);
         DispatchMessage(&msg);
-        D_DoomStep();
+        // D_DoomStep();
     }
 
     return 0;
+}
+
+static void ResizeDIBSection(int width, int height)
+{
+    if(bitmapHandle)
+    {
+        DeleteObject(bitmapHandle);
+    }
+    if(!bitmapDeviceContext)
+    {
+        bitmapDeviceContext = CreateCompatibleDC(0);
+    }
+
+
+    bitmapInfo.bmiHeader.biSize = sizeof(bitmapInfo.bmiHeader);
+    bitmapInfo.bmiHeader.biWidth = width;
+    bitmapInfo.bmiHeader.biHeight = height;
+    bitmapInfo.bmiHeader.biPlanes = 1;
+    bitmapInfo.bmiHeader.biBitCount = 32;
+    bitmapInfo.bmiHeader.biCompression = BI_RGB;
+
+    HDC deviceContext = CreateCompatibleDC(0);
+    bitmapHandle = CreateDIBSection(
+        deviceContext,
+        &bitmapInfo,
+        DIB_RGB_COLORS,
+        &bitmapMemory,
+        0, 0);
 }
 
 LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -107,24 +145,51 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
     {
         case WM_CLOSE:
         {
-            DestroyWindow(hwnd);
+            OutputDebugStringA("WM_CLOSE\n");
+            running = false;
             break;
         }
         case WM_DESTROY: 
         {
-            PostQuitMessage(0);
+            OutputDebugStringA("WM_DESTROY\n");
+            running = false;
             break;
         }
         case WM_PAINT:
         {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hwnd, &ps);
+            OutputDebugStringA("WM_PAINT\n");
+            PAINTSTRUCT paintStruct;
+            HDC deviceContext = BeginPaint(hwnd, &paintStruct);
+            int x = paintStruct.rcPaint.left;
+            int y = paintStruct.rcPaint.top;
+            int height = paintStruct.rcPaint.bottom - paintStruct.rcPaint.top;
+            int width = paintStruct.rcPaint.right - paintStruct.rcPaint.left;
 
+            StretchDIBits(deviceContext,
+                            x, y, width, height,
+                            x, y, width, height,
+                            bitmapMemory,
+                            &bitmapInfo,
+                            DIB_RGB_COLORS,
+                            SRCCOPY);
 
-
-            FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
-
-            EndPaint(hwnd, &ps);
+            PatBlt(deviceContext, x, y, width, height, WHITENESS);
+            EndPaint(hwnd, &paintStruct);
+            break;
+        }
+        case WM_ACTIVATEAPP:
+        {
+            OutputDebugStringA("WM_ACTIVATEAPP\n");
+            break;
+        }
+        case WM_SIZE:
+        {
+            OutputDebugStringA("WM_SIZE\n");
+            RECT clientRect;
+            GetClientRect(hwnd, &clientRect);
+            int width = clientRect.right - clientRect.left;
+            int height = clientRect.bottom - clientRect.top;
+            ResizeDIBSection(width, height);
             break;
         }
         case WM_TIMER: // or settimer callback function
@@ -133,6 +198,8 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             // { 
             //     return 0; 
             // } 
+            OutputDebugStringA("WM_TIMER\n");
+            break;
         }
         default:
         {
