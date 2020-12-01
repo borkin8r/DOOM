@@ -34,15 +34,15 @@
 #include "i_sound.h"
 
 static const char
-rcsid[] = "$Id: i_main.c,v 1.4 1997/02/03 22:45:10 b1 Exp $";
+rcsid[] = "$Id: i_win32.c,v 0.1 2020/11/30 22:45:10 b1 Exp $";
 
 void* doomWindow = NULL;
 
 static BOOL running;
 static BITMAPINFO bitmapInfo;
 static void* bitmapMemory;
-static HBITMAP bitmapHandle;
-static HDC bitmapDeviceContext;
+static int bitmapWidth;
+static int bitmapHeight;
 
 LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -94,17 +94,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR pCmdLine, 
 
     // Run the message loop.
     running = true;
-    MSG msg = {0};
+    MSG message = {0};
     while (running)
     {
-        if (GetMessage(&msg, NULL, 0, 0) < 0)
+        while(PeekMessageA(&message, 0, 0, 0, PM_REMOVE))
         {
-            break;
-        }
-
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-        // D_DoomStep();
+            if(message.message == WM_QUIT)
+            {
+                running = false;
+            }
+            TranslateMessage(&message);
+            DispatchMessage(&message);
+            // D_DoomStep();
+        } 
+        // write to bitmap memory
+        // updatewindow() to blit to screen
     }
 
     return 0;
@@ -112,30 +116,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR pCmdLine, 
 
 static void ResizeDIBSection(int width, int height)
 {
-    if(bitmapHandle)
+    if(bitmapMemory)
     {
-        DeleteObject(bitmapHandle);
+        VirtualFree(bitmapMemory, 0, MEM_RELEASE);
     }
-    if(!bitmapDeviceContext)
-    {
-        bitmapDeviceContext = CreateCompatibleDC(0);
-    }
+
+    bitmapWidth = width;
+    bitmapHeight = height;
 
 
     bitmapInfo.bmiHeader.biSize = sizeof(bitmapInfo.bmiHeader);
     bitmapInfo.bmiHeader.biWidth = width;
-    bitmapInfo.bmiHeader.biHeight = height;
+    bitmapInfo.bmiHeader.biHeight = -height;
     bitmapInfo.bmiHeader.biPlanes = 1;
     bitmapInfo.bmiHeader.biBitCount = 32;
     bitmapInfo.bmiHeader.biCompression = BI_RGB;
 
-    HDC deviceContext = CreateCompatibleDC(0);
-    bitmapHandle = CreateDIBSection(
-        deviceContext,
-        &bitmapInfo,
-        DIB_RGB_COLORS,
-        &bitmapMemory,
-        0, 0);
+    int bytesPerPixel = 4;
+    int bitmapMemorySize = (bitmapWidth * bitmapHeights) * bytesPerPixel;
+    bitmapMemory = VirtualAlloc(0, bitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
+    
 }
 
 LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -158,13 +158,17 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         case WM_PAINT:
         {
             OutputDebugStringA("WM_PAINT\n");
+            // update window begin?
+
             PAINTSTRUCT paintStruct;
             HDC deviceContext = BeginPaint(hwnd, &paintStruct);
             int x = paintStruct.rcPaint.left;
             int y = paintStruct.rcPaint.top;
-            int height = paintStruct.rcPaint.bottom - paintStruct.rcPaint.top;
-            int width = paintStruct.rcPaint.right - paintStruct.rcPaint.left;
 
+            RECT clientRect;
+            GetClientRect(hwnd, &clientRect);
+            int windowWidth = clientRect.right - clientRect.left;
+            int windowHeight = clientRect.bottom - clientRect.top;
             StretchDIBits(deviceContext,
                             x, y, width, height,
                             x, y, width, height,
@@ -172,6 +176,7 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
                             &bitmapInfo,
                             DIB_RGB_COLORS,
                             SRCCOPY);
+            //update window end
 
             PatBlt(deviceContext, x, y, width, height, WHITENESS);
             EndPaint(hwnd, &paintStruct);
