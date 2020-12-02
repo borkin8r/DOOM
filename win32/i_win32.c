@@ -48,28 +48,25 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR pCmdLine, int nCmdShow)
 {
-    // Register the window class.
-    const char CLASS_NAME[]  = "win32doom";
-    
-    WNDCLASSEX wc = {0};
+    WNDCLASS wc = {0};
     wc.lpfnWndProc   = WindowCallback;
     wc.hInstance     = hInstance;
-    wc.lpszClassName = CLASS_NAME;
-    wc.cbSize = sizeof(WNDCLASSEX);
+    wc.lpszClassName = "win32doom";
+    wc.style = CS_HREDRAW|CS_VREDRAW;
 
     
-    if (!RegisterClassEx(&wc))
+    if (!RegisterClassA(&wc))
     {
-        MessageBox(NULL, "Call to RegisterClassEx failed!", "Error!", 0);
+        MessageBox(NULL, "Call to RegisterClass failed!", "Error!", 0);
         return 1;
     }
     // Create the window.
     
-     doomWindow = CreateWindowEx(
+     doomWindow = CreateWindowExA(
         0,                              // Optional window styles.
-        CLASS_NAME,                     // Window class
+        wc.lpszClassName,                     // Window class
         "win32 DOOM",                  // Window text
-        WS_OVERLAPPEDWINDOW,            // Window style
+        WS_OVERLAPPEDWINDOW|WS_VISIBLE,            // Window style
         // Size and position
         CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, // , , width, height
         NULL,       // Parent window    
@@ -133,7 +130,7 @@ static void ResizeDIBSection(int width, int height)
     bitmapInfo.bmiHeader.biCompression = BI_RGB;
 
     int bytesPerPixel = 4;
-    int bitmapMemorySize = (bitmapWidth * bitmapHeights) * bytesPerPixel;
+    int bitmapMemorySize = (bitmapWidth * bitmapHeight) * bytesPerPixel;
     bitmapMemory = VirtualAlloc(0, bitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
     
 }
@@ -170,15 +167,15 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             int windowWidth = clientRect.right - clientRect.left;
             int windowHeight = clientRect.bottom - clientRect.top;
             StretchDIBits(deviceContext,
-                            x, y, width, height,
-                            x, y, width, height,
+                            x, y, windowWidth, windowHeight,
+                            x, y, windowWidth, windowHeight,
                             bitmapMemory,
                             &bitmapInfo,
                             DIB_RGB_COLORS,
                             SRCCOPY);
             //update window end
 
-            PatBlt(deviceContext, x, y, width, height, WHITENESS);
+            PatBlt(deviceContext, x, y, windowHeight, windowHeight, WHITENESS);
             EndPaint(hwnd, &paintStruct);
             break;
         }
