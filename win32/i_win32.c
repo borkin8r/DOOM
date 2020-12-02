@@ -52,7 +52,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR pCmdLine, 
     wc.lpfnWndProc   = WindowCallback;
     wc.hInstance     = hInstance;
     wc.lpszClassName = "win32doom";
-    wc.style = CS_HREDRAW|CS_VREDRAW;
+    wc.style = CS_HREDRAW|CS_VREDRAW|CS_OWNDC;
 
     
     if (!RegisterClassA(&wc))
@@ -120,7 +120,6 @@ static void ResizeDIBSection(int width, int height)
 
     bitmapWidth = width;
     bitmapHeight = height;
-
 
     bitmapInfo.bmiHeader.biSize = sizeof(bitmapInfo.bmiHeader);
     bitmapInfo.bmiHeader.biWidth = width;
