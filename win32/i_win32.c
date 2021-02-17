@@ -68,7 +68,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR pCmdLine, 
         "win32 DOOM",                  // Window text
         WS_OVERLAPPEDWINDOW|WS_VISIBLE,            // Window style
         // Size and position
-        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, // , , width, height
+        CW_USEDEFAULT, CW_USEDEFAULT, SCREENWIDTH, SCREENHEIGHT, // , , width, height TODO: test with multiply global
         NULL,       // Parent window    
         NULL,       // Menu
         hInstance,  // Instance handle
@@ -86,8 +86,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR pCmdLine, 
     myargc = __argc; 
     myargv = __argv;  
 
-    // D_DoomSetup();
-    // D_DoomInit();
+    D_DoomSetup();
+    D_DoomInit();
 
     // Run the message loop.
     running = true;
@@ -102,10 +102,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR pCmdLine, 
             }
             TranslateMessage(&message);
             DispatchMessage(&message);
-            // D_DoomStep();
+            D_DoomStep();
         } 
-        // write to bitmap memory
-        // updatewindow() to blit to screen
+        // TODO: write to bitmap memory; windows[x] -> bitmapMemory
+        // TODO: updatewindow() to blit to screen
     }
 
     return 0;
@@ -125,7 +125,7 @@ static void ResizeDIBSection(int width, int height)
     bitmapInfo.bmiHeader.biWidth = width;
     bitmapInfo.bmiHeader.biHeight = -height;
     bitmapInfo.bmiHeader.biPlanes = 1;
-    bitmapInfo.bmiHeader.biBitCount = 32;
+    bitmapInfo.bmiHeader.biBitCount = 8;
     bitmapInfo.bmiHeader.biCompression = BI_RGB;
 
     int bytesPerPixel = 4;
@@ -168,7 +168,7 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             StretchDIBits(deviceContext,
                             x, y, windowWidth, windowHeight,
                             x, y, windowWidth, windowHeight,
-                            bitmapMemory,
+                            bitmapMemory, //screens[]
                             &bitmapInfo,
                             DIB_RGB_COLORS,
                             SRCCOPY);

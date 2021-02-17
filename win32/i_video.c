@@ -43,20 +43,6 @@ rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 
 #define POINTER_WARP_COUNTDOWN	1
 
-int		X_screen;
-int		X_width;
-int		X_height;
-
-// MIT SHared Memory extension.
-dboolean		doShm;
-
-int		X_shmeventtype;
-
-// Fake mouse handling.
-// This cannot work properly w/o DGA.
-// Needs an invisible mouse cursor at least.
-dboolean		grabMouse;
-int		doPointerWarp = POINTER_WARP_COUNTDOWN;
 
 // Blocky mode,
 // replace each 320x200 pixel with multiply*multiply pixels.
@@ -114,6 +100,8 @@ void I_FinishUpdate (void)
     static int	lasttic;
     int		tics;
     int		i;
+    int X_width = SCREENWIDTH;
+    int X_height = SCREENHEIGHT;
     // UNUSED static unsigned char *bigscreen=0;
 
     // draws little dots on the bottom of the screen
@@ -263,7 +251,10 @@ void grabsharedmemory(int size)
 
 void I_InitGraphics(void)
 {
-
+	//not needed; all window setup done in i_win32?
+	//linux: background_buffer = bytes_per_line * height_or_number_of_lines ?
+	// 1 byte per pixel?
+	//screens[0] = (unsigned char *) (background_buffer?)
 }
 
 

@@ -209,57 +209,57 @@ void D_Display (void)
     dboolean			redrawsbar;
 
     if (nodrawers)
-	return;                    // for comparative timing / profiling
+	    return;                    // for comparative timing / profiling
 		
     redrawsbar = false;
     
     // change the view size if needed
     if (setsizeneeded)
     {
-	R_ExecuteSetViewSize ();
-	oldgamestate = -1;                      // force background redraw
-	borderdrawcount = 3;
+	    R_ExecuteSetViewSize ();
+	    oldgamestate = -1;                      // force background redraw
+	    borderdrawcount = 3;
     }
 
     // save the current screen if about to wipe
     if (gamestate != wipegamestate)
     {
-	wipe = true;
-	wipe_StartScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
+	    wipe = true;
+	    wipe_StartScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
     }
     else
-	wipe = false;
+	    wipe = false;
 
     if (gamestate == GS_LEVEL && gametic)
-	HU_Erase();
+	    HU_Erase();
     
     // do buffered drawing
     switch (gamestate)
     {
       case GS_LEVEL:
-	if (!gametic)
-	    break;
-	if (automapactive)
-	    AM_Drawer ();
-	if (wipe || (viewheight != 200 && fullscreen) )
-	    redrawsbar = true;
-	if (inhelpscreensstate && !inhelpscreens)
-	    redrawsbar = true;              // just put away the help screen
-	ST_Drawer (viewheight == 200, redrawsbar );
-	fullscreen = viewheight == 200;
-	break;
+	      if (!gametic)
+	          break;
+	      if (automapactive)
+	          AM_Drawer ();
+	      if (wipe || (viewheight != 200 && fullscreen) )
+	          redrawsbar = true;
+	      if (inhelpscreensstate && !inhelpscreens)
+	          redrawsbar = true;              // just put away the help screen
+	      ST_Drawer (viewheight == 200, redrawsbar );
+	      fullscreen = viewheight == 200;
+	      break;
 
       case GS_INTERMISSION:
-	WI_Drawer ();
-	break;
+	      WI_Drawer ();
+	      break;
 
       case GS_FINALE:
-	F_Drawer ();
-	break;
+	      F_Drawer ();
+	      break;
 
       case GS_DEMOSCREEN:
-	D_PageDrawer ();
-	break;
+	      D_PageDrawer ();
+	      break;
     }
     
     // draw buffered stuff to screen
@@ -357,15 +357,15 @@ void D_DoomInit(void) {
 	if (demorecording)
 		G_BeginRecording ();
 		
-    if (M_CheckParm ("-debugfile"))
-    {
-		char    filename[20];
-		sprintf (filename,"debug%i.txt",consoleplayer);
-		printf ("debug output to: %s\n",filename);
-		debugfile = fopen (filename,"w");
-    }
+  if (M_CheckParm ("-debugfile"))
+  {
+	  char    filename[20];
+	  sprintf (filename,"debug%i.txt",consoleplayer);
+	  printf ("debug output to: %s\n",filename);
+	  debugfile = fopen (filename,"w");
+  }
 	
-    I_InitGraphics ();
+    //I_InitGraphics ();
 }
 
 //
@@ -385,7 +385,7 @@ void D_DoomStep (void)
 	    D_ProcessEvents ();
 	    G_BuildTiccmd (&netcmds[consoleplayer][maketic%BACKUPTICS]);
 	    if (advancedemo)
-		D_DoAdvanceDemo ();
+		    D_DoAdvanceDemo ();
 	    M_Ticker ();
 	    G_Ticker ();
 	    gametic++;
@@ -396,7 +396,7 @@ void D_DoomStep (void)
 	    TryRunTics (); // will run at least one tic
 	}
 		
-	S_UpdateSounds (players[consoleplayer].mo);// move positional sounds
+//	S_UpdateSounds (players[consoleplayer].mo);// move positional sounds
 
 	// Update display, next frame, with current state.
 	D_Display ();
@@ -408,7 +408,7 @@ void D_DoomStep (void)
 	// Synchronous sound output is explicitly called.
 #ifndef SNDINTR
 	// Update sound output.
-	I_SubmitSound();
+//	I_SubmitSound();
 #endif
 }
 
@@ -1152,7 +1152,7 @@ void D_DoomSetup (void)
     D_CheckNetGame ();
 
     printf ("S_Init: Setting up sound.\n");
-    S_Init (snd_SfxVolume /* *8 */, snd_MusicVolume /* *8*/ );
+    //S_Init (snd_SfxVolume /* *8 */, snd_MusicVolume /* *8*/ );
 
     printf ("HU_Init: Setting up heads up display.\n");
     HU_Init ();
