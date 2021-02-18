@@ -40,7 +40,7 @@ void* doomWindow = NULL;
 
 static BOOL running;
 static BITMAPINFO bitmapInfo;
-static void* bitmapMemory;
+void* bitmapMemory;
 static int bitmapWidth;
 static int bitmapHeight;
 
@@ -104,8 +104,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR pCmdLine, 
             DispatchMessage(&message);
             D_DoomStep();
         } 
-        // TODO: write to bitmap memory; windows[x] -> bitmapMemory
-        // TODO: updatewindow() to blit to screen
     }
 
     return 0;
@@ -154,7 +152,6 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         case WM_PAINT:
         {
             OutputDebugStringA("WM_PAINT\n");
-            // update window begin?
 
             PAINTSTRUCT paintStruct;
             HDC deviceContext = BeginPaint(hwnd, &paintStruct);
@@ -168,11 +165,10 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             StretchDIBits(deviceContext,
                             x, y, windowWidth, windowHeight,
                             x, y, windowWidth, windowHeight,
-                            bitmapMemory, //screens[]
+                            bitmapMemory, // screens[0] memcpy destination
                             &bitmapInfo,
                             DIB_RGB_COLORS,
                             SRCCOPY);
-            //update window end
 
             PatBlt(deviceContext, x, y, windowHeight, windowHeight, WHITENESS);
             EndPaint(hwnd, &paintStruct);
@@ -209,8 +205,25 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
         return result;
     }
-    
         
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
+// called from I_FinishUpdate in i_video.c
+void Win32RenderScreen(char* screen) //window width? window height?
+{
+    // TODO: write to bitmapMemory; screens[x] -> bitmapMemory
+    RECT clientRect;
+    GetClientRect(doomWindow, &clientRect);
+    int windowWidth = clientRect.right - clientRect.left;
+    int windowHeight = clientRect.bottom - clientRect.top;
+    HDC deviceContext = GetDC(doomWindow);
+    StretchDIBits(deviceContext,
+                            x, y, windowWidth, windowHeight, // destination
+                            x, y, windowWidth, windowHeight, // source
+                            bitmapMemory, // screens[0] memcpy destination; should be same size/format
+                            &bitmapInfo,
+                            DIB_RGB_COLORS,
+                            SRCCOPY);
+    ReleaseDC(doomWindow, deviceContext);
+}
