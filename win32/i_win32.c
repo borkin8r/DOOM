@@ -26,6 +26,7 @@
 
 #include <windows.h>
 #include <shellapi.h>
+#include <memory.h>
 
 #include "doomdef.h"
 #include "m_argv.h"
@@ -45,9 +46,12 @@ static int bitmapWidth;
 static int bitmapHeight;
 
 LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+static void ResizeDIBSection(int width, int height);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR pCmdLine, int nCmdShow)
 {
+    ResizeDIBSection(SCREENWIDTH, SCREENHEIGHT);
+
     WNDCLASS wc = {0};
     wc.lpfnWndProc   = WindowCallback;
     wc.hInstance     = hInstance;
@@ -126,8 +130,9 @@ static void ResizeDIBSection(int width, int height)
     bitmapInfo.bmiHeader.biBitCount = 8;
     bitmapInfo.bmiHeader.biCompression = BI_RGB;
 
-    int bytesPerPixel = 4;
+    int bytesPerPixel = 1;
     int bitmapMemorySize = (bitmapWidth * bitmapHeight) * bytesPerPixel;
+    printf("bitmapMemorySize: %d", bitmapMemorySize);
     bitmapMemory = VirtualAlloc(0, bitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
     
 }
@@ -179,16 +184,16 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             OutputDebugStringA("WM_ACTIVATEAPP\n");
             break;
         }
-        case WM_SIZE:
-        {
-            OutputDebugStringA("WM_SIZE\n");
-            RECT clientRect;
-            GetClientRect(hwnd, &clientRect);
-            int width = clientRect.right - clientRect.left;
-            int height = clientRect.bottom - clientRect.top;
-            ResizeDIBSection(width, height);
-            break;
-        }
+        // case WM_SIZE:
+        // {
+        //     OutputDebugStringA("WM_SIZE\n");
+        //     RECT clientRect;
+        //     GetClientRect(hwnd, &clientRect);
+        //     int width = clientRect.right - clientRect.left;
+        //     int height = clientRect.bottom - clientRect.top;
+        //     ResizeDIBSection(width, height);
+        //     break;
+        // }
         case WM_TIMER: // or settimer callback function
         {
             // if (wParam == timerId) 
@@ -212,15 +217,26 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 // called from I_FinishUpdate in i_video.c
 void Win32RenderScreen(char* screen) //window width? window height?
 {
-    // TODO: write to bitmapMemory; screens[x] -> bitmapMemory
     RECT clientRect;
     GetClientRect(doomWindow, &clientRect);
     int windowWidth = clientRect.right - clientRect.left;
     int windowHeight = clientRect.bottom - clientRect.top;
+    // TODO: write to bitmapMemory; screens[x] -> bitmapMemory
+    // probably need to check endianess
+    errno_t err;
+    // 1 is bytes per pixel
+    int destinationSize = 1 * SCREENWIDTH * SCREENHEIGHT;
+    int srcCount = SCREENWIDTH * SCREENHEIGHT;
+    err = memcpy_s(bitmapMemory, destinationSize, screen, srcCount / 2);
+    if (err)
+    {
+        printf("Error executing memcpy_s.\n");
+    }
+    
     HDC deviceContext = GetDC(doomWindow);
     StretchDIBits(deviceContext,
-                            x, y, windowWidth, windowHeight, // destination
-                            x, y, windowWidth, windowHeight, // source
+                            0, 0, windowWidth, windowHeight, // destination
+                            0, 0, windowWidth, windowHeight, // source
                             bitmapMemory, // screens[0] memcpy destination; should be same size/format
                             &bitmapInfo,
                             DIB_RGB_COLORS,
