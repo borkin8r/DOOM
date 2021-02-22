@@ -227,7 +227,7 @@ void Win32RenderScreen(char* screen) //window width? window height?
     // 1 is bytes per pixel
     int destinationSize = 1 * SCREENWIDTH * SCREENHEIGHT;
     int srcCount = SCREENWIDTH * SCREENHEIGHT;
-    err = memcpy_s(bitmapMemory, destinationSize, screen, srcCount / 2);
+    err = memcpy_s(bitmapMemory, destinationSize, screen, srcCount);
     if (err)
     {
         printf("Error executing memcpy_s.\n");
