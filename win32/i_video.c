@@ -124,95 +124,95 @@ void I_FinishUpdate (void)
     // scales the screen size before blitting it
     if (multiply == 2)
     {
-	unsigned int *olineptrs[2];
-	unsigned int *ilineptr;
-	int x, y, i;
-	unsigned int twoopixels;
-	unsigned int twomoreopixels;
-	unsigned int fouripixels;
+		unsigned int *olineptrs[2];
+		unsigned int *ilineptr;
+		int x, y, i;
+		unsigned int twoopixels;
+		unsigned int twomoreopixels;
+		unsigned int fouripixels;
 
-	y = SCREENHEIGHT;
-	while (y--)
-	{
-	    x = SCREENWIDTH;
-	    do
-	    {
-		fouripixels = *ilineptr++;
-		twoopixels =	(fouripixels & 0xff000000)
-		    |	((fouripixels>>8) & 0xffff00)
-		    |	((fouripixels>>16) & 0xff);
-		twomoreopixels =	((fouripixels<<16) & 0xff000000)
-		    |	((fouripixels<<8) & 0xffff00)
-		    |	(fouripixels & 0xff);
-#ifdef __BIG_ENDIAN__
-		*olineptrs[0]++ = twoopixels;
-		*olineptrs[1]++ = twoopixels;
-		*olineptrs[0]++ = twomoreopixels;
-		*olineptrs[1]++ = twomoreopixels;
-#else
-		*olineptrs[0]++ = twomoreopixels;
-		*olineptrs[1]++ = twomoreopixels;
-		*olineptrs[0]++ = twoopixels;
-		*olineptrs[1]++ = twoopixels;
-#endif
-	    } while (x-=4);
-	    olineptrs[0] += X_width/4;
-	    olineptrs[1] += X_width/4;
-	}
+		y = SCREENHEIGHT;
+		while (y--)
+		{
+		    x = SCREENWIDTH;
+		    do
+		    {
+			fouripixels = *ilineptr++;
+			twoopixels =	(fouripixels & 0xff000000)
+			    |	((fouripixels>>8) & 0xffff00)
+			    |	((fouripixels>>16) & 0xff);
+			twomoreopixels =	((fouripixels<<16) & 0xff000000)
+			    |	((fouripixels<<8) & 0xffff00)
+			    |	(fouripixels & 0xff);
+	#ifdef __BIG_ENDIAN__
+			*olineptrs[0]++ = twoopixels;
+			*olineptrs[1]++ = twoopixels;
+			*olineptrs[0]++ = twomoreopixels;
+			*olineptrs[1]++ = twomoreopixels;
+	#else
+			*olineptrs[0]++ = twomoreopixels;
+			*olineptrs[1]++ = twomoreopixels;
+			*olineptrs[0]++ = twoopixels;
+			*olineptrs[1]++ = twoopixels;
+	#endif
+		    } while (x-=4);
+		    olineptrs[0] += X_width/4;
+		    olineptrs[1] += X_width/4;
+		}
 
     }
     else if (multiply == 3)
     {
-	unsigned int *olineptrs[3];
-	unsigned int *ilineptr;
-	int x, y, i;
-	unsigned int fouropixels[3];
-	unsigned int fouripixels;
+		unsigned int *olineptrs[3];
+		unsigned int *ilineptr;
+		int x, y, i;
+		unsigned int fouropixels[3];
+		unsigned int fouripixels;
 
-	ilineptr = (unsigned int *) (screens[0]);
+		ilineptr = (unsigned int *) (screens[0]);
 
-	y = SCREENHEIGHT;
-	while (y--)
-	{
-	    x = SCREENWIDTH;
-	    do
-	    {
-		fouripixels = *ilineptr++;
-		fouropixels[0] = (fouripixels & 0xff000000)
-		    |	((fouripixels>>8) & 0xff0000)
-		    |	((fouripixels>>16) & 0xffff);
-		fouropixels[1] = ((fouripixels<<8) & 0xff000000)
-		    |	(fouripixels & 0xffff00)
-		    |	((fouripixels>>8) & 0xff);
-		fouropixels[2] = ((fouripixels<<16) & 0xffff0000)
-		    |	((fouripixels<<8) & 0xff00)
-		    |	(fouripixels & 0xff);
-#ifdef __BIG_ENDIAN__
-		*olineptrs[0]++ = fouropixels[0];
-		*olineptrs[1]++ = fouropixels[0];
-		*olineptrs[2]++ = fouropixels[0];
-		*olineptrs[0]++ = fouropixels[1];
-		*olineptrs[1]++ = fouropixels[1];
-		*olineptrs[2]++ = fouropixels[1];
-		*olineptrs[0]++ = fouropixels[2];
-		*olineptrs[1]++ = fouropixels[2];
-		*olineptrs[2]++ = fouropixels[2];
-#else
-		*olineptrs[0]++ = fouropixels[2];
-		*olineptrs[1]++ = fouropixels[2];
-		*olineptrs[2]++ = fouropixels[2];
-		*olineptrs[0]++ = fouropixels[1];
-		*olineptrs[1]++ = fouropixels[1];
-		*olineptrs[2]++ = fouropixels[1];
-		*olineptrs[0]++ = fouropixels[0];
-		*olineptrs[1]++ = fouropixels[0];
-		*olineptrs[2]++ = fouropixels[0];
-#endif
-	    } while (x-=4);
-	    olineptrs[0] += 2*X_width/4;
-	    olineptrs[1] += 2*X_width/4;
-	    olineptrs[2] += 2*X_width/4;
-	}
+		y = SCREENHEIGHT;
+		while (y--)
+		{
+		    x = SCREENWIDTH;
+		    do
+		    {
+			fouripixels = *ilineptr++;
+			fouropixels[0] = (fouripixels & 0xff000000)
+			    |	((fouripixels>>8) & 0xff0000)
+			    |	((fouripixels>>16) & 0xffff);
+			fouropixels[1] = ((fouripixels<<8) & 0xff000000)
+			    |	(fouripixels & 0xffff00)
+			    |	((fouripixels>>8) & 0xff);
+			fouropixels[2] = ((fouripixels<<16) & 0xffff0000)
+			    |	((fouripixels<<8) & 0xff00)
+			    |	(fouripixels & 0xff);
+	#ifdef __BIG_ENDIAN__
+			*olineptrs[0]++ = fouropixels[0];
+			*olineptrs[1]++ = fouropixels[0];
+			*olineptrs[2]++ = fouropixels[0];
+			*olineptrs[0]++ = fouropixels[1];
+			*olineptrs[1]++ = fouropixels[1];
+			*olineptrs[2]++ = fouropixels[1];
+			*olineptrs[0]++ = fouropixels[2];
+			*olineptrs[1]++ = fouropixels[2];
+			*olineptrs[2]++ = fouropixels[2];
+	#else
+			*olineptrs[0]++ = fouropixels[2];
+			*olineptrs[1]++ = fouropixels[2];
+			*olineptrs[2]++ = fouropixels[2];
+			*olineptrs[0]++ = fouropixels[1];
+			*olineptrs[1]++ = fouropixels[1];
+			*olineptrs[2]++ = fouropixels[1];
+			*olineptrs[0]++ = fouropixels[0];
+			*olineptrs[1]++ = fouropixels[0];
+			*olineptrs[2]++ = fouropixels[0];
+	#endif
+		    } while (x-=4);
+		    olineptrs[0] += 2*X_width/4;
+		    olineptrs[1] += 2*X_width/4;
+		    olineptrs[2] += 2*X_width/4;
+		}
 
     }
     else if (multiply == 4)
@@ -237,7 +237,7 @@ void I_ReadScreen (byte* scr)
 //
 void I_SetPalette (byte* palette)
 {
-   // UploadNewPalette(X_cmap, palette);
+   UploadNewPalette(palette);
 }
 
 //

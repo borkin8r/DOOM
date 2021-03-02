@@ -267,10 +267,10 @@ void D_Display (void)
     
     // draw the view directly
     if (gamestate == GS_LEVEL && !automapactive && gametic)
-	R_RenderPlayerView (&players[displayplayer]);
+	   R_RenderPlayerView (&players[displayplayer]);
 
     if (gamestate == GS_LEVEL && gametic)
-	HU_Drawer ();
+	   HU_Drawer ();
     
     // clean up border stuff
     if (gamestate != oldgamestate && gamestate != GS_LEVEL)
@@ -282,20 +282,20 @@ void D_Display (void)
     // see if the border needs to be initially drawn
     if (gamestate == GS_LEVEL && oldgamestate != GS_LEVEL)
     {
-	viewactivestate = false;        // view was not active
-	R_FillBackScreen ();    // draw the pattern into the back screen
+    	viewactivestate = false;        // view was not active
+    	R_FillBackScreen ();    // draw the pattern into the back screen
     }
 
     // see if the border needs to be updated to the screen
     if (gamestate == GS_LEVEL && !automapactive && scaledviewwidth != 320)
     {
-	if (menuactive || menuactivestate || !viewactivestate)
-	    borderdrawcount = 3;
-	if (borderdrawcount)
-	{
-	    R_DrawViewBorder ();    // erase old menu stuff
-	    borderdrawcount--;
-	}
+    	if (menuactive || menuactivestate || !viewactivestate)
+    	    borderdrawcount = 3;
+    	if (borderdrawcount)
+    	{
+    	    R_DrawViewBorder ();    // erase old menu stuff
+    	    borderdrawcount--;
+    	}
 
     }
 
@@ -307,12 +307,12 @@ void D_Display (void)
     // draw pause pic
     if (paused)
     {
-	if (automapactive)
-	    y = 4;
-	else
-	    y = viewwindowy+4;
-	V_DrawPatchDirect(viewwindowx+(scaledviewwidth-68)/2,
-			  y,0,W_CacheLumpName ("M_PAUSE", PU_CACHE));
+    	if (automapactive)
+    	    y = 4;
+    	else
+    	    y = viewwindowy+4;
+    	V_DrawPatchDirect(viewwindowx+(scaledviewwidth-68)/2,
+    			  y,0,W_CacheLumpName ("M_PAUSE", PU_CACHE));
     }
 
 
@@ -324,8 +324,8 @@ void D_Display (void)
     // normal update
     if (!wipe)
     {
-	I_FinishUpdate ();              // page flip or blit buffer
-	return;
+    	I_FinishUpdate ();              // page flip or blit buffer
+    	return;
     }
     
     // wipe update
@@ -335,17 +335,17 @@ void D_Display (void)
 
     do
     {
-	do
-	{
-	    nowtime = I_GetTime ();
-	    tics = nowtime - wipestart;
-	} while (!tics);
-	wipestart = nowtime;
-	done = wipe_ScreenWipe(wipe_Melt
-			       , 0, 0, SCREENWIDTH, SCREENHEIGHT, tics);
-	I_UpdateNoBlit ();
-	M_Drawer ();                            // menu is drawn even on top of wipes
-	I_FinishUpdate ();                      // page flip or blit buffer
+    	do
+    	{
+    	    nowtime = I_GetTime ();
+    	    tics = nowtime - wipestart;
+    	} while (!tics);
+    	wipestart = nowtime;
+    	done = wipe_ScreenWipe(wipe_Melt
+    			       , 0, 0, SCREENWIDTH, SCREENHEIGHT, tics);
+    	I_UpdateNoBlit ();
+    	M_Drawer ();                            // menu is drawn even on top of wipes
+    	I_FinishUpdate ();                      // page flip or blit buffer
     } while (!done);
 }
 

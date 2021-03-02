@@ -33,6 +33,7 @@
 #include "d_main.h"
 #include "i_win32.h"
 #include "i_sound.h"
+#include "v_video.h"
 
 static const char
 rcsid[] = "$Id: i_win32.c,v 0.1 2020/11/30 22:45:10 b1 Exp $";
@@ -40,7 +41,7 @@ rcsid[] = "$Id: i_win32.c,v 0.1 2020/11/30 22:45:10 b1 Exp $";
 void* doomWindow = NULL;
 
 static BOOL running;
-static BITMAPINFO bitmapInfo;
+static BITMAPINFO* bitmapInfo;
 void* bitmapMemory;
 static int bitmapWidth;
 static int bitmapHeight;
@@ -72,7 +73,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR pCmdLine, 
         "win32 DOOM",                  // Window text
         WS_OVERLAPPEDWINDOW|WS_VISIBLE,            // Window style
         // Size and position
-        CW_USEDEFAULT, CW_USEDEFAULT, SCREENWIDTH, SCREENHEIGHT, // , , width, height TODO: test with multiply global
+        CW_USEDEFAULT, CW_USEDEFAULT, SCREENWIDTH * 2, SCREENHEIGHT * 2, // , , width, height TODO: test with multiply global
         NULL,       // Parent window    
         NULL,       // Menu
         hInstance,  // Instance handle
@@ -83,6 +84,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR pCmdLine, 
     {
         return 0;
     }
+
+    bitmapInfo = VirtualAlloc(0, sizeof(BITMAPINFOHEADER) * sizeof(RGBQUAD) * 256, MEM_COMMIT, PAGE_READWRITE);
+    if (bitmapInfo == NULL)
+    {
+        return 0;
+    }
+
+    bitmapInfo->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bitmapInfo->bmiHeader.biWidth = SCREENWIDTH;
+    bitmapInfo->bmiHeader.biHeight = -SCREENHEIGHT;
+    bitmapInfo->bmiHeader.biPlanes = 1;
+    bitmapInfo->bmiHeader.biBitCount = 8;
+    bitmapInfo->bmiHeader.biCompression = BI_RGB;
 
     ShowWindow(doomWindow, nCmdShow);
     UpdateWindow(doomWindow);
@@ -120,17 +134,15 @@ static void ResizeDIBSection(int width, int height)
         VirtualFree(bitmapMemory, 0, MEM_RELEASE);
     }
 
+    int bytesPerPixel = 1;
+
+// bitmapInfo needs to be allocated before calling
+    // bitmapInfo->bmiHeader.biWidth = SCREENWIDTH;
+    // bitmapInfo->bmiHeader.biHeight = -SCREENHEIGHT;
+
     bitmapWidth = width;
     bitmapHeight = height;
-
-    bitmapInfo.bmiHeader.biSize = sizeof(bitmapInfo.bmiHeader);
-    bitmapInfo.bmiHeader.biWidth = width;
-    bitmapInfo.bmiHeader.biHeight = -height;
-    bitmapInfo.bmiHeader.biPlanes = 1;
-    bitmapInfo.bmiHeader.biBitCount = 8;
-    bitmapInfo.bmiHeader.biCompression = BI_RGB;
-
-    int bytesPerPixel = 1;
+    
     int bitmapMemorySize = (bitmapWidth * bitmapHeight) * bytesPerPixel;
     printf("bitmapMemorySize: %d", bitmapMemorySize);
     bitmapMemory = VirtualAlloc(0, bitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
@@ -171,7 +183,7 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
                             x, y, windowWidth, windowHeight,
                             x, y, windowWidth, windowHeight,
                             bitmapMemory, // screens[0] memcpy destination
-                            &bitmapInfo,
+                            bitmapInfo,
                             DIB_RGB_COLORS,
                             SRCCOPY);
 
@@ -215,7 +227,7 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 }
 
 // called from I_FinishUpdate in i_video.c
-void Win32RenderScreen(char* screen) //window width? window height?
+void Win32RenderScreen(unsigned char* screen) //window width? window height?
 {
     RECT clientRect;
     GetClientRect(doomWindow, &clientRect);
@@ -232,14 +244,27 @@ void Win32RenderScreen(char* screen) //window width? window height?
     {
         printf("Error executing memcpy_s.\n");
     }
-    
     HDC deviceContext = GetDC(doomWindow);
     StretchDIBits(deviceContext,
                             0, 0, windowWidth, windowHeight, // destination
                             0, 0, windowWidth, windowHeight, // source
                             bitmapMemory, // screens[0] memcpy destination; should be same size/format
-                            &bitmapInfo,
+                            bitmapInfo,
                             DIB_RGB_COLORS,
                             SRCCOPY);
     ReleaseDC(doomWindow, deviceContext);
+}
+
+void UploadNewPalette(unsigned char* palette) {
+    //TODO: bitmapInfo->bmiColors
+    int c;
+    for (int i=0 ; i<256 ; i++) // sizeof(int) == sizeof(RGBQUAD) ?
+    {
+        c = gammatable[usegamma][*palette++];
+        bitmapInfo->bmiColors[i].rgbRed = (c<<8) + c;
+        c = gammatable[usegamma][*palette++];
+        bitmapInfo->bmiColors[i].rgbGreen = (c<<8) + c;
+        c = gammatable[usegamma][*palette++];
+        bitmapInfo->bmiColors[i].rgbBlue = (c<<8) + c;
+    }
 }
