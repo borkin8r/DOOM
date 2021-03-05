@@ -357,13 +357,13 @@ void D_DoomInit(void) {
 	if (demorecording)
 		G_BeginRecording ();
 		
-  if (M_CheckParm ("-debugfile"))
-  {
-	  char    filename[20];
-	  sprintf (filename,"debug%i.txt",consoleplayer);
-	  printf ("debug output to: %s\n",filename);
-	  debugfile = fopen (filename,"w");
-  }
+    if (M_CheckParm ("-debugfile"))
+    {
+      char    filename[20];
+      sprintf (filename,"debug%i.txt",consoleplayer);
+      printf ("debug output to: %s\n",filename);
+      debugfile = fopen (filename,"w");
+    }
 	
     //I_InitGraphics ();
 }
@@ -403,7 +403,7 @@ void D_DoomStep (void)
 
 #ifndef SNDSERV
 	// Sound mixing for the buffer is snychronous.
-	I_UpdateSound();
+//	I_UpdateSound();
 #endif	
 	// Synchronous sound output is explicitly called.
 #ifndef SNDINTR
@@ -472,54 +472,52 @@ void D_AdvanceDemo (void)
     
     switch (demosequence)
     {
-      case 0:
-	if ( gamemode == commercial )
-	    pagetic = 35 * 11;
-	else
-	    pagetic = 170;
-	gamestate = GS_DEMOSCREEN;
-	pagename = "TITLEPIC";
-	if ( gamemode == commercial )
-	  S_StartMusic(mus_dm2ttl);
-	else
-	  S_StartMusic (mus_intro);
-	break;
-      case 1:
-	G_DeferedPlayDemo ("demo1");
-	break;
-      case 2:
-	pagetic = 200;
-	gamestate = GS_DEMOSCREEN;
-	pagename = "CREDIT";
-	break;
-      case 3:
-	G_DeferedPlayDemo ("demo2");
-	break;
-      case 4:
-	gamestate = GS_DEMOSCREEN;
-	if ( gamemode == commercial)
-	{
-	    pagetic = 35 * 11;
-	    pagename = "TITLEPIC";
-	    S_StartMusic(mus_dm2ttl);
-	}
-	else
-	{
-	    pagetic = 200;
+        case 0:
+        	if ( gamemode == commercial )
+        	    pagetic = 35 * 11;
+        	else
+        	    pagetic = 170;
+        	gamestate = GS_DEMOSCREEN;
+        	pagename = "TITLEPIC";
+        	if ( gamemode == commercial )
+        	  S_StartMusic(mus_dm2ttl);
+        	else
+        	  S_StartMusic (mus_intro);
+        	break;
+        case 1:
+            G_DeferedPlayDemo ("demo1");
+            break;
+        case 2:
+            pagetic = 200;
+            gamestate = GS_DEMOSCREEN;
+            pagename = "CREDIT";
+            break;
+        case 3:
+            G_DeferedPlayDemo ("demo2");
+            break;
+        case 4:
+            gamestate = GS_DEMOSCREEN;
+            if ( gamemode == commercial)
+            {
+                pagetic = 35 * 11;
+                pagename = "TITLEPIC";
+                S_StartMusic(mus_dm2ttl);
+            }
+            else
+            {
+                pagetic = 200;
 
-	    if ( gamemode == retail )
-	      pagename = "CREDIT";
-	    else
-	      pagename = "HELP2";
-	}
-	break;
-      case 5:
-	G_DeferedPlayDemo ("demo3");
-	break;
+                if ( gamemode == retail )
+                  pagename = "CREDIT";
+            }
+            break;
+        case 5:
+            G_DeferedPlayDemo ("demo3");
+            break;
         // THE DEFINITIVE DOOM Special Edition demo
-      case 6:
-	G_DeferedPlayDemo ("demo4");
-	break;
+        case 6:
+            G_DeferedPlayDemo ("demo4");
+            break;
     }
 }
 
@@ -695,7 +693,7 @@ void IdentifyVersion (void)
 	else if(tnt)
 	    D_AddFile (DEVDATA"tnt.wad");
 	else*/
-	    D_AddFile (DEVDATA"doom2.wad");
+    D_AddFile (DEVDATA"doom2.wad");
 	    
 	D_AddFile (DEVMAPS"cdata/texture1.lmp");
 	D_AddFile (DEVMAPS"cdata/pnames.lmp");
