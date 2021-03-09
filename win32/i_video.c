@@ -74,6 +74,7 @@ dboolean		shmFinished;
 
 void I_GetEvent(void)
 {
+	// 
 }
 
 //

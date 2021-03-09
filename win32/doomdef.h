@@ -247,6 +247,7 @@ typedef enum
 // This is the stuff configured by Setup.Exe.
 // Most key data are simple ascii (uppercased).
 //
+#ifdef NORMALUNIX
 #define KEY_RIGHTARROW	0xae
 #define KEY_LEFTARROW	0xac
 #define KEY_UPARROW	0xad
@@ -279,6 +280,39 @@ typedef enum
 
 #define KEY_LALT	KEY_RALT
 
+#elif WIN32
+#define KEY_RIGHTARROW  0x27
+#define KEY_LEFTARROW 0x25
+#define KEY_UPARROW 0x26
+#define KEY_DOWNARROW 0x28
+#define KEY_ESCAPE 0x1b
+#define KEY_ENTER 0x0d
+#define KEY_TAB 9
+#define KEY_F1    (0x90+0x3b)
+#define KEY_F2    (0x90+0x3c)
+#define KEY_F3    (0x90+0x3d)
+#define KEY_F4    (0x90+0x3e)
+#define KEY_F5    (0x90+0x3f)
+#define KEY_F6    (0x90+0x40)
+#define KEY_F7    (0x90+0x41)
+#define KEY_F8    (0x90+0x42)
+#define KEY_F9    (0x90+0x43)
+#define KEY_F10   (0x90+0x44)
+#define KEY_F11   (0x90+0x57)
+#define KEY_F12   (0x90+0x58)
+
+#define KEY_BACKSPACE 8
+#define KEY_PAUSE 0x13
+
+#define KEY_EQUALS  0xbb //same as VK_OEM_PLUS?
+#define KEY_MINUS 0xbd //same as VK_OEM_MINUS?
+
+#define KEY_RSHIFT  (0x90+0x36)
+#define KEY_RCTRL (0x90+0x1d)
+#define KEY_RALT  (0x90+0x38)
+
+#define KEY_LALT  KEY_RALT
+#endif
 
 
 // DOOM basic types (dboolean),

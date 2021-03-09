@@ -253,12 +253,26 @@ default_t	defaults[] =
     {"key_strafe",&key_strafe, KEY_RALT},
     {"key_speed",&key_speed, KEY_RSHIFT},
 
+
 // UNIX hack, to be removed. 
 #ifdef SNDSERV
     {"sndserver", (int *) &sndserver_filename, (int) "sndserver"},
     {"mb_used", &mb_used, 2},
 #endif
-    
+
+#elif WIN32
+    {"key_right",&key_right, KEY_RIGHTARROW},
+    {"key_left",&key_left, KEY_LEFTARROW},
+    {"key_up",&key_up, KEY_UPARROW},
+    {"key_down",&key_down, KEY_DOWNARROW},
+    {"key_strafeleft",&key_strafeleft, ','},
+    {"key_straferight",&key_straferight, '.'},
+
+    {"key_fire",&key_fire, KEY_RCTRL},
+    {"key_use",&key_use, ' '},
+    {"key_strafe",&key_strafe, KEY_RALT},
+    {"key_speed",&key_speed, KEY_RSHIFT},
+
 #endif
 
 #ifdef LINUX

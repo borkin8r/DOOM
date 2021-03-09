@@ -149,6 +149,7 @@ static void ResizeDIBSection(int width, int height)
     
 }
 
+//wparam = int64 , lparam = unsigned int64
 LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     int result = 0;
@@ -194,6 +195,18 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         case WM_ACTIVATEAPP:
         {
             OutputDebugStringA("WM_ACTIVATEAPP\n");
+            break;
+        }
+        case WM_KEYDOWN:
+        {
+            // toAscii()?
+            event_t event = {
+                ev_keydown,
+                wParam,
+                0,
+                0
+            };
+            D_PostEvent(&event);
             break;
         }
         // case WM_SIZE:
