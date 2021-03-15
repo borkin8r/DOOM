@@ -201,6 +201,8 @@ void S_Init
 //
 void S_Start(void)
 {
+  return;
+
   int cnum;
   int mnum;
 
@@ -830,6 +832,8 @@ S_getChannel
 ( void*		origin,
   sfxinfo_t*	sfxinfo )
 {
+
+    return -1;
     // channel number to use
     int		cnum;
     
