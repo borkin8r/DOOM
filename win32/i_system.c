@@ -88,17 +88,17 @@ byte* I_ZoneBase (int*	size)
 
 //
 // I_GetTime
-// returns milliseconds since system started; wraps every 49.7 days
-// high resolution timer may be better suited
+// returns time in 1/70th second tics
 //
 int  I_GetTime (void)
 {
     int			newtics;
     static int		basetime=0;
   
-    newtics = gettickcount();
+    newtics = gettickcount(); //get ms since program start, wraps every ~49 days
     if (!basetime)
 	   basetime = newtics;
+    newtics = (newtics-basetime)*TICRATE/1000;
     return newtics;
 }
 

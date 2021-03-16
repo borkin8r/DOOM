@@ -107,29 +107,35 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR pCmdLine, 
     D_DoomSetup();
     D_DoomInit();
 
-    // Run the message loop.
+    // infinite loop until program exits
     running = true;
-    MSG message = {0};
-    while (running)
-    {
-        while(PeekMessageA(&message, 0, 0, 0, PM_REMOVE))
-        {
-            if(message.message == WM_QUIT)
-            {
-                running = false;
-            }
-            TranslateMessage(&message);
-            DispatchMessage(&message);
-            D_DoomStep();
-        } 
-    }
+    D_DoomLoop();
 
     return 0;
 }
 
+void ReadMessages()
+{
+    if (!running)
+    {
+        return;
+    }
+
+    MSG message = {0};
+    while(PeekMessageA(&message, 0, 0, 0, PM_REMOVE))
+    {
+        if (message.message == WM_QUIT)
+        {
+            running = false;
+        }
+        TranslateMessage(&message);
+        DispatchMessage(&message);
+    } 
+}
+
 static void ResizeDIBSection(int width, int height)
 {
-    if(bitmapMemory)
+    if (bitmapMemory)
     {
         VirtualFree(bitmapMemory, 0, MEM_RELEASE);
     }
@@ -202,6 +208,18 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             // toAscii()?
             event_t event = {
                 ev_keydown,
+                wParam,
+                0,
+                0
+            };
+            D_PostEvent(&event);
+            break;
+        }
+        case WM_KEYUP:
+        {
+            // toAscii()?
+            event_t event = {
+                ev_keyup,
                 wParam,
                 0,
                 0

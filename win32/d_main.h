@@ -54,7 +54,7 @@ void D_PostEvent (event_t* ev);
 // To accomodate the win32 main loop, broke up D_DoomLoop into D_DoomInit
 // and D_DoomLoop. D_DoomInit should be called once to set up everything 
 // and D_DoomStep is to be called on each iteration of the win32 main infinite loop.
-void D_DoomStep (void);
+void D_DoomLoop (void);
 void D_DoomInit (void); 
 void D_DoomSetup (void);
 	

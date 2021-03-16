@@ -37,6 +37,7 @@ static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 	#include <sys/stat.h>
 	#include <fcntl.h>
 #elif WIN32
+    #include "i_win32.h"
 	#include "win32_layer.h"
 #endif
 
@@ -349,7 +350,6 @@ void D_Display (void)
     } while (!done);
 }
 
-
 //
 // D_DoomInit
 // 
@@ -369,50 +369,68 @@ void D_DoomInit(void) {
 }
 
 //
-//  D_DoomStep ; to be called from an infinite loop
+//  D_DoomLoop
 //
 extern  dboolean         demorecording;
 
-void D_DoomStep (void)
+void D_DoomLoop (void)
 {
-	// frame syncronous IO operations
-	I_StartFrame ();                
-	
-	// process one or more tics
-	if (singletics)
-	{
-	    I_StartTic ();
-	    D_ProcessEvents ();
-	    G_BuildTiccmd (&netcmds[consoleplayer][maketic%BACKUPTICS]);
-	    if (advancedemo)
-		    D_DoAdvanceDemo ();
-	    M_Ticker ();
-	    G_Ticker ();
-	    gametic++;
-	    maketic++;
-	}
-	else
-	{
-	    TryRunTics (); // will run at least one tic
-	}
-		
-//	S_UpdateSounds (players[consoleplayer].mo);// move positional sounds
+    if (demorecording)
+        G_BeginRecording ();
+        
+    if (M_CheckParm ("-debugfile"))
+    {
+        char    filename[20];
+        sprintf (filename,"debug%i.txt",consoleplayer);
+        printf ("debug output to: %s\n",filename);
+        debugfile = fopen (filename,"w");
+    }
+    
+    I_InitGraphics ();
 
-	// Update display, next frame, with current state.
-	D_Display ();
+    while (1)
+    {
+#ifdef WIN32
+        ReadMessages();
+#endif
+
+        // frame syncronous IO operations
+        I_StartFrame ();                
+        
+        // process one or more tics
+        if (singletics)
+        {
+            I_StartTic ();
+            D_ProcessEvents ();
+            G_BuildTiccmd (&netcmds[consoleplayer][maketic%BACKUPTICS]);
+            if (advancedemo)
+            D_DoAdvanceDemo ();
+            M_Ticker ();
+            G_Ticker ();
+            gametic++;
+            maketic++;
+        }
+        else
+        {
+            TryRunTics (); // will run at least one tic
+        }
+            
+        //S_UpdateSounds (players[consoleplayer].mo);// move positional sounds
+
+        // Update display, next frame, with current state.
+        D_Display ();
 
 #ifndef SNDSERV
-	// Sound mixing for the buffer is snychronous.
-//	I_UpdateSound();
-#endif	
-	// Synchronous sound output is explicitly called.
+        // Sound mixing for the buffer is snychronous.
+        //I_UpdateSound();
+#endif  
+        // Synchronous sound output is explicitly called.
 #ifndef SNDINTR
-	// Update sound output.
-//	I_SubmitSound();
+        // Update sound output.
+        //I_SubmitSound();
 #endif
+    }
 }
-
-
 
 //
 //  DEMO LOOP

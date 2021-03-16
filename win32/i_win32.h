@@ -4,4 +4,5 @@
 
 	void Win32RenderScreen(unsigned char* screen);
 	void UploadNewPalette(unsigned char* palette);
+	void ReadMessages();
 #endif
