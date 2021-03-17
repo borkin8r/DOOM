@@ -25,6 +25,7 @@
 // #endif 
 
 #include <windows.h>
+#include <windowsx.h>
 #include <shellapi.h>
 #include <memory.h>
 
@@ -219,10 +220,25 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         {
             // toAscii()?
             event_t event = {
-                ev_keyup,
+                ev_mouse,
                 wParam,
                 0,
                 0
+            };
+            D_PostEvent(&event);
+            break;
+        }
+        case WM_LBUTTONDOWN:
+//        case WM_LBUTTONUP:
+        case WM_MOUSEMOVE:
+        {
+            int mouseX = GET_X_LPARAM(lParam);
+            int mouseY = GET_Y_LPARAM(lParam);
+            event_t event = {
+                ev_mouse,
+                wParam,
+                mouseX,
+                mouseY
             };
             D_PostEvent(&event);
             break;
