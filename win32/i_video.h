@@ -35,9 +35,10 @@
 // determines the hardware configuration
 // and sets up the video mode
 void I_InitGraphics (void);
-
-
 void I_ShutdownGraphics(void);
+
+void I_PostButtonEvent(mouseButton, isPress);
+void I_PostMotionEvent(mouseButton, mouseX, mouseY);
 
 // Takes full 8 bit values.
 void I_SetPalette (byte* palette);

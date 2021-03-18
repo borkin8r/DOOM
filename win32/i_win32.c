@@ -34,6 +34,7 @@
 #include "d_main.h"
 #include "i_win32.h"
 #include "i_sound.h"
+#include "i_video.h"
 #include "v_video.h"
 
 static const char
@@ -220,7 +221,7 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         {
             // toAscii()?
             event_t event = {
-                ev_mouse,
+                ev_keyup,
                 wParam,
                 0,
                 0
@@ -229,18 +230,29 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             break;
         }
         case WM_LBUTTONDOWN:
-//        case WM_LBUTTONUP:
+        {
+            // TODO: send mouseX, mouseY too?
+            I_PostButtonEvent(wParam, true); // button code, isPress params
+            break;
+        }
+        case WM_LBUTTONUP:
+        {
+            // TODO: send mouseX, mouseY too?
+            I_PostButtonEvent(wParam, false); // button code,  isPress params
+            break;
+        }
         case WM_MOUSEMOVE:
         {
             int mouseX = GET_X_LPARAM(lParam);
             int mouseY = GET_Y_LPARAM(lParam);
-            event_t event = {
-                ev_mouse,
-                wParam,
-                mouseX,
-                mouseY
-            };
-            D_PostEvent(&event);
+            I_PostMotionEvent(wParam, mouseX, mouseY); // postevent and set last x/y and mousemoved
+            // event_t event = {
+            //     ev_mouse,
+            //     wParam,
+            //     mouseX,
+            //     mouseY
+            // };
+            // D_PostEvent(&event);
             break;
         }
         // case WM_SIZE:

@@ -70,11 +70,67 @@ void I_StartFrame (void)
 static int	lastmousex = 0;
 static int	lastmousey = 0;
 dboolean		mousemoved = false;
-dboolean		shmFinished;
+dboolean		shmFinished; // not needed for win32?
 
 void I_GetEvent(void)
 {
 	// 
+}
+
+void I_PostButtonEvent(mouseButton, isPress)
+{
+	event_t event;
+	event.type = ev_mouse;
+	// if (isPress)
+	// {
+	// 	event.data1 =
+	// 	    // (X_event.xbutton.state & Button1Mask)
+	// 	    // | (X_event.xbutton.state & Button2Mask ? 2 : 0)
+	// 	    // | (X_event.xbutton.state & Button3Mask ? 4 : 0)
+	// 		(mouseButton == Button1) //| (X_event.xbutton.button == Button1)
+	// 	    | (mouseButton == Button2 ? 2 : 0)
+	// 	    | (mouseButton == Button3 ? 4 : 0);
+	// } else // isRelease
+	// {
+	// 	// event.data1 =
+	// 	//     (X_event.xbutton.state & Button1Mask)
+	// 	//     | (X_event.xbutton.state & Button2Mask ? 2 : 0)
+	// 	//     | (X_event.xbutton.state & Button3Mask ? 4 : 0);
+	// 	// suggest parentheses around arithmetic in operand of |
+	// 	event.data1 =
+	// 	    //event.data1
+	// 	    (mouseButton == Button1 ? 1 : 0) //^ (X_event.xbutton.button == Button1 ? 1 : 0)
+	// 	    ^ (mouseButton == Button2 ? 2 : 0)
+	// 	    ^ (mouseButton == Button3 ? 4 : 0);
+	// }
+	event.data1 = isPress ? mouseButton : 0;
+	event.data2 = event.data3 = 0;
+
+	D_PostEvent(&event);
+}
+
+void I_PostMotionEvent(mouseButton, mouseX, mouseY)
+{
+	event_t event;
+	event.type = ev_mouse;
+	event.data1 = mouseButton;
+	event.data2 = (mouseX - lastmousex) << 2;
+	event.data3 = (lastmousey - mouseY) << 2;
+
+	if (event.data2 || event.data3)
+	{
+	    lastmousex = mouseX;
+	    lastmousey = mouseY;
+	    if (mouseX != SCREENWIDTH/2 && mouseY != SCREENHEIGHT/2)
+	    {
+			D_PostEvent(&event);
+			// fprintf(stderr, "m");
+			mousemoved = false;
+	    } else
+	    {
+			mousemoved = true;
+	    }
+	}
 }
 
 //
@@ -98,7 +154,6 @@ void I_UpdateNoBlit (void)
 //
 void I_FinishUpdate (void)
 {
-
     static int	lasttic;
     int		tics;
     int		i;
@@ -109,17 +164,15 @@ void I_FinishUpdate (void)
     // draws little dots on the bottom of the screen
     if (devparm)
     {
+		i = I_GetTime();
+		tics = i - lasttic;
+		lasttic = i;
+		if (tics > 20) tics = 20;
 
-	i = I_GetTime();
-	tics = i - lasttic;
-	lasttic = i;
-	if (tics > 20) tics = 20;
-
-	for (i=0 ; i<tics*2 ; i+=2)
-	    screens[0][ (SCREENHEIGHT-1)*SCREENWIDTH + i] = 0xff;
-	for ( ; i<20*2 ; i+=2)
-	    screens[0][ (SCREENHEIGHT-1)*SCREENWIDTH + i] = 0x0;
-    
+		for (i=0 ; i<tics*2 ; i+=2)
+		    screens[0][ (SCREENHEIGHT-1)*SCREENWIDTH + i] = 0xff;
+		for ( ; i<20*2 ; i+=2)
+		    screens[0][ (SCREENHEIGHT-1)*SCREENWIDTH + i] = 0x0;
     }
 
     // scales the screen size before blitting it
