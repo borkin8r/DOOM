@@ -280,7 +280,7 @@ default_t	defaults[] =
     {"mousetype", (int*)&mousetype, (int)"microsoft"},
 #endif
 
-    {"use_mouse",&usemouse, 1},
+    {"use_mouse",&usemouse, 1}, //mousebuttons[index]
     {"mouseb_fire",&mousebfire,0},
     {"mouseb_strafe",&mousebstrafe,1},
     {"mouseb_forward",&mousebforward,2},

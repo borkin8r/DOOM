@@ -1098,21 +1098,21 @@ dboolean	PTR_UseTraverse (intercept_t* in)
 	
     if (!in->d.line->special)
     {
-	P_LineOpening (in->d.line);
-	if (openrange <= 0)
-	{
-	    S_StartSound (usething, sfx_noway);
-	    
-	    // can't use through a wall
-	    return false;	
-	}
-	// not a special line, but keep checking
-	return true ;		
+    	P_LineOpening (in->d.line);
+    	if (openrange <= 0)
+    	{
+    	    S_StartSound (usething, sfx_noway);
+    	    
+    	    // can't use through a wall
+    	    return false;	
+    	}
+    	// not a special line, but keep checking
+    	return true ;		
     }
 	
     side = 0;
     if (P_PointOnLineSide (usething->x, usething->y, in->d.line) == 1)
-	side = 1;
+	   side = 1;
     
     //	return false;		// don't use back side
 	

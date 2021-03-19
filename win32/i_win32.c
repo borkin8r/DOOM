@@ -229,12 +229,14 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             D_PostEvent(&event);
             break;
         }
+        case WM_RBUTTONDOWN:
         case WM_LBUTTONDOWN:
         {
             // TODO: send mouseX, mouseY too?
             I_PostButtonEvent(wParam, true); // button code, isPress params
             break;
         }
+        case WM_RBUTTONUP:
         case WM_LBUTTONUP:
         {
             // TODO: send mouseX, mouseY too?

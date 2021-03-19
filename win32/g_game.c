@@ -381,43 +381,47 @@ void G_BuildTiccmd (ticcmd_t* cmd)
 	|| joybuttons[joybstrafe]; 
     if (bstrafe != dclickstate2 && dclicktime2 > 1 ) 
     { 
-	dclickstate2 = bstrafe; 
-	if (dclickstate2) 
-	    dclicks2++; 
-	if (dclicks2 == 2) 
-	{ 
-	    cmd->buttons |= BT_USE; 
-	    dclicks2 = 0; 
-	} 
-	else 
-	    dclicktime2 = 0; 
-    } 
+		dclickstate2 = bstrafe; 
+		if (dclickstate2) 
+		{
+		    dclicks2++; 
+		}
+		if (dclicks2 == 2) 
+		{ 
+		    cmd->buttons |= BT_USE; 
+		    dclicks2 = 0; 
+		} 
+		else 
+		{
+		    dclicktime2 = 0; 
+	    } 
+	}
     else 
     { 
-	dclicktime2 += ticdup; 
-	if (dclicktime2 > 20) 
-	{ 
-	    dclicks2 = 0; 
-	    dclickstate2 = 0; 
+		dclicktime2 += ticdup; 
+		if (dclicktime2 > 20) 
+		{ 
+		    dclicks2 = 0; 
+		    dclickstate2 = 0; 
+		} 
 	} 
-    } 
  
     forward += mousey; 
     if (strafe) 
-	side += mousex*2; 
+		side += mousex*2; 
     else 
-	cmd->angleturn -= mousex*0x8; 
+		cmd->angleturn -= mousex*0x8; 
 
     mousex = mousey = 0; 
 	 
     if (forward > MAXPLMOVE) 
-	forward = MAXPLMOVE; 
+		forward = MAXPLMOVE; 
     else if (forward < -MAXPLMOVE) 
-	forward = -MAXPLMOVE; 
+		forward = -MAXPLMOVE; 
     if (side > MAXPLMOVE) 
-	side = MAXPLMOVE; 
+		side = MAXPLMOVE; 
     else if (side < -MAXPLMOVE) 
-	side = -MAXPLMOVE; 
+		side = -MAXPLMOVE; 
  
     cmd->forwardmove += forward; 
     cmd->sidemove += side;
@@ -425,14 +429,14 @@ void G_BuildTiccmd (ticcmd_t* cmd)
     // special buttons
     if (sendpause) 
     { 
-	sendpause = false; 
-	cmd->buttons = BT_SPECIAL | BTS_PAUSE; 
+		sendpause = false; 
+		cmd->buttons = BT_SPECIAL | BTS_PAUSE; 
     } 
  
     if (sendsave) 
     { 
-	sendsave = false; 
-	cmd->buttons = BT_SPECIAL | BTS_SAVEGAME | (savegameslot<<BTS_SAVESHIFT); 
+		sendsave = false; 
+		cmd->buttons = BT_SPECIAL | BTS_SAVEGAME | (savegameslot<<BTS_SAVESHIFT); 
     } 
 } 
  
