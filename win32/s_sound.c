@@ -472,18 +472,16 @@ S_StartSound
 
 void S_StopSound(void *origin)
 {
-  ////////////////////////////////////////////////////////////////////////////
-  // TODO WIN32 fix
     int cnum;
 
-    // for (cnum=0 ; cnum<numChannels ; cnum++)
-    // {
-    // 	if (channels[cnum].sfxinfo && channels[cnum].origin == origin)
-    // 	{
-    // 	    S_StopChannel(cnum);
-    // 	    break;
-    // 	}
-    // }
+    for (cnum=0 ; cnum<numChannels ; cnum++)
+    {
+    	if (channels[cnum].sfxinfo && channels[cnum].origin == origin)
+    	{
+    	    S_StopChannel(cnum);
+    	    break;
+    	}
+    }
 }
 
 

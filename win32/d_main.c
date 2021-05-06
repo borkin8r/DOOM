@@ -364,9 +364,12 @@ void D_DoomInit(void) {
       printf ("debug output to: %s\n",filename);
       debugfile = fopen (filename,"w");
     }
-	
-    //I_InitGraphics ();
 }
+
+
+#define SAMPLECOUNT     512
+#define MIXBUFFERSIZE   (SAMPLECOUNT*2*2)
+#define SPEED           11025
 
 //
 //  D_DoomLoop
@@ -386,8 +389,10 @@ void D_DoomLoop (void)
         debugfile = fopen (filename,"w");
     }
     
-    I_InitGraphics ();
-
+    I_InitGraphics();
+    I_InitSound();
+    Win32FillSoundBuffer(mixbuffer, MIXBUFFERSIZE);
+    Win32PlaySoundBuffer();
     while (1)
     {
 #ifdef WIN32
@@ -415,7 +420,7 @@ void D_DoomLoop (void)
             TryRunTics (); // will run at least one tic
         }
             
-        //S_UpdateSounds (players[consoleplayer].mo);// move positional sounds
+        S_UpdateSounds (players[consoleplayer].mo);// move positional sounds
 
         // Update display, next frame, with current state.
         D_Display ();
@@ -427,7 +432,7 @@ void D_DoomLoop (void)
         // Synchronous sound output is explicitly called.
 #ifndef SNDINTR
         // Update sound output.
-        //I_SubmitSound();
+        I_SubmitSound();
 #endif
     }
 }
@@ -1168,7 +1173,7 @@ void D_DoomSetup (void)
     D_CheckNetGame ();
 
     printf ("S_Init: Setting up sound.\n");
-    //S_Init (snd_SfxVolume /* *8 */, snd_MusicVolume /* *8*/ );
+    S_Init (snd_SfxVolume /* *8 */, snd_MusicVolume /* *8*/ );
 
     printf ("HU_Init: Setting up heads up display.\n");
     HU_Init ();

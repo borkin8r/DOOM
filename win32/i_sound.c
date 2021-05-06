@@ -678,7 +678,7 @@ void
 I_SubmitSound(void)
 {
   // Write it to DSP device.
-  write(audio_fd, mixbuffer, SAMPLECOUNT*BUFMUL);
+  Win32FillSoundBuffer(mixbuffer, MIXBUFFERSIZE);
 }
 
 
@@ -749,7 +749,46 @@ void I_ShutdownSound(void)
 void
 I_InitSound()
 {   
-   
+  int i;
+  
+  #ifdef SNDINTR
+    fprintf( stderr, "I_SoundSetTimer: %d microsecs\n", SOUND_INTERVAL );
+    I_SoundSetTimer( SOUND_INTERVAL );
+  #endif
+    
+  // Secure and configure sound device first.
+  fprintf( stderr, "I_InitSound: ");
+  
+  InitializeSound(SAMPLERATE, MIXBUFFERSIZE);
+  
+  // Initialize external data (all sounds) at start, keep static.
+  fprintf( stderr, "I_InitSound: ");
+  
+  for (i=1 ; i<NUMSFX ; i++)
+  { 
+    // Alias? Example is the chaingun sound linked to pistol.
+    if (!S_sfx[i].link)
+    {
+      // Load data from WAD file.
+      S_sfx[i].data = getsfx( S_sfx[i].name, &lengths[i] );
+    } 
+    else
+    {
+      // Previously loaded already?
+      S_sfx[i].data = S_sfx[i].link->data;
+      lengths[i] = lengths[(S_sfx[i].link - S_sfx)/sizeof(sfxinfo_t)];
+    }
+  }
+
+  fprintf( stderr, " pre-cached all sound data\n");
+  
+  // Now initialize mixbuffer with zero.
+  for ( i = 0; i< MIXBUFFERSIZE; i++ )
+    mixbuffer[i] = 0;
+  
+  // Finished initialization.
+  fprintf(stderr, "I_InitSound: sound module ready\n");
+  
 }
 
 

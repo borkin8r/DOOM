@@ -28,6 +28,7 @@
 #include <windowsx.h>
 #include <shellapi.h>
 #include <memory.h>
+#include <dsound.h>
 
 #include "doomdef.h"
 #include "m_argv.h"
@@ -44,9 +45,14 @@ void* doomWindow = NULL;
 
 static BOOL running;
 static BITMAPINFO* bitmapInfo;
-void* bitmapMemory;
+static void* bitmapMemory;
 static int bitmapWidth;
 static int bitmapHeight;
+static LPDIRECTSOUNDBUFFER SecondaryBuffer;
+static int SecondaryBufferSize = 0;
+static int SamplesPerSecond = 0;
+static __int32 RunningSampleIndex;
+static int BytesPerSample = sizeof(__int16)*2;
 
 LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 static void ResizeDIBSection(int width, int height);
@@ -86,6 +92,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR pCmdLine, 
     {
         return 0;
     }
+
+    InitializeSound(48000, 48000*sizeof(short)*2);
 
     bitmapInfo = VirtualAlloc(0, sizeof(BITMAPINFOHEADER) * sizeof(RGBQUAD) * 256, MEM_COMMIT, PAGE_READWRITE);
     if (bitmapInfo == NULL)
@@ -287,6 +295,71 @@ LRESULT CALLBACK WindowCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
+void Win32PlaySoundBuffer()
+{
+    IDirectSoundBuffer_Play(SecondaryBuffer, 0, 0, DSBPLAY_LOOPING);
+}
+
+void Win32FillSoundBuffer(short* mixBuffer, int bufferSize)
+{
+    //TODO: mixBuffer not being filled
+    DWORD PlayCursor;
+    DWORD WriteCursor;
+    if (SUCCEEDED(IDirectSoundBuffer_GetCurrentPosition(SecondaryBuffer, &PlayCursor, &WriteCursor)))
+    {
+        DWORD ByteToLock = ((RunningSampleIndex*BytesPerSample) % SecondaryBufferSize);
+        DWORD TargetCursor = ((PlayCursor + ((SamplesPerSecond / 15)*BytesPerSample)) %
+                                SecondaryBufferSize);
+
+        DWORD BytesToWrite;
+        if(ByteToLock > TargetCursor)
+        {
+            BytesToWrite = (SecondaryBufferSize - ByteToLock);
+            BytesToWrite += TargetCursor;
+        }
+        else
+        {
+            BytesToWrite = TargetCursor - ByteToLock;
+        }
+
+
+        void* Region1;
+        DWORD Region1Size;
+        void* Region2;
+        DWORD Region2Size;
+
+        if (SUCCEEDED(IDirectSoundBuffer_Lock(
+            SecondaryBuffer,
+            ByteToLock, BytesToWrite,
+            &Region1, &Region1Size,
+            &Region2, &Region2Size,
+            0)))
+        {
+            DWORD Region1SampleCount = Region1Size/BytesPerSample;
+             __int16 *SampleOut = (__int16*)Region1;
+            for (DWORD SampleIndex = 0; SampleIndex < Region1SampleCount; ++SampleIndex)
+            {
+                *SampleOut++ = *mixBuffer++; //left stereo audio frequency
+                *SampleOut++ = *mixBuffer++; //right stereo audio frequency
+
+                ++RunningSampleIndex;
+            }
+
+            DWORD Region2SampleCount = Region2Size/BytesPerSample;
+            SampleOut = (__int16*)Region2;
+            for (DWORD SampleIndex = 0; SampleIndex < Region2SampleCount; ++SampleIndex)
+            {
+                *SampleOut++ = *mixBuffer++; //left stereo audio frequency
+                *SampleOut++ = *mixBuffer++; //right stereo audio frequency
+
+                ++RunningSampleIndex;
+            }
+            
+            IDirectSoundBuffer_Unlock(SecondaryBuffer, Region1, Region1Size, Region2, Region2Size);
+        }
+    }
+}
+
 // called from I_FinishUpdate in i_video.c
 void Win32RenderScreen(unsigned char* screen) //window width? window height?
 {
@@ -327,5 +400,64 @@ void UploadNewPalette(unsigned char* palette) {
         bitmapInfo->bmiColors[i].rgbGreen = (c<<8) + c;
         c = gammatable[usegamma][*palette++];
         bitmapInfo->bmiColors[i].rgbBlue = (c<<8) + c;
+    }
+}
+
+typedef HRESULT WINAPI direct_sound_create(LPCGUID pcGuidDevice, LPDIRECTSOUND *ppDS, LPUNKNOWN pUnkOuter);
+
+void InitializeSound(int samplesPerSecond, int bufferSize)
+{
+    SamplesPerSecond = samplesPerSecond;
+    SecondaryBufferSize = bufferSize;
+
+    HMODULE DSoundLibrary = LoadLibraryA("dsound.dll");
+
+    if(DSoundLibrary)
+    {
+        direct_sound_create* DirectSoundCreate = (direct_sound_create *) GetProcAddress(DSoundLibrary, "DirectSoundCreate");
+
+        LPDIRECTSOUND DirectSound;
+        if (DirectSoundCreate && SUCCEEDED(DirectSoundCreate(0,  &DirectSound, 0)))
+        {
+            WAVEFORMATEX WaveFormat = {0};
+            WaveFormat.wFormatTag = WAVE_FORMAT_PCM;
+            WaveFormat.nChannels = 2;
+            WaveFormat.nSamplesPerSec = samplesPerSecond; //48k? or 11k?  samples/s
+            WaveFormat.wBitsPerSample = 16;
+            WaveFormat.nBlockAlign = (WaveFormat.nChannels*WaveFormat.wBitsPerSample) / 8;
+            WaveFormat.nAvgBytesPerSec = WaveFormat.nSamplesPerSec*WaveFormat.nBlockAlign;
+            WaveFormat.cbSize = 0;
+
+            if (SUCCEEDED(IDirectSound_SetCooperativeLevel(DirectSound, doomWindow, DSSCL_PRIORITY)))
+            {
+                DSBUFFERDESC BufferDescription = {0};
+                BufferDescription.dwSize = sizeof(BufferDescription);
+                BufferDescription.dwFlags = DSBCAPS_PRIMARYBUFFER;
+
+                LPDIRECTSOUNDBUFFER PrimaryBuffer;
+                if (SUCCEEDED(IDirectSound_CreateSoundBuffer(DirectSound, &BufferDescription, &PrimaryBuffer, 0)))
+                {
+
+                    
+                    if(SUCCEEDED(IDirectSoundBuffer_SetFormat(PrimaryBuffer, &WaveFormat)))
+                    {
+                        OutputDebugStringA("Primary buffer format was set.\n");
+                    } 
+                }
+            }
+            
+            DSBUFFERDESC BufferDescription = {0};
+            BufferDescription.dwSize = sizeof(BufferDescription);
+            BufferDescription.dwFlags = 0;
+            BufferDescription.dwBufferBytes = bufferSize;
+            BufferDescription.lpwfxFormat = &WaveFormat;
+            HRESULT Error = IDirectSound_CreateSoundBuffer(DirectSound, &BufferDescription, &SecondaryBuffer, 0);
+            if (SUCCEEDED(Error))
+            {
+                OutputDebugStringA("Secondary buffer created successfully.\n");
+            }
+            
+
+        }
     }
 }

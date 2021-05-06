@@ -37,6 +37,8 @@ extern char* sndserver_filename;
 
 extern unsigned int timerId;
 
+extern signed short	mixbuffer[512*4];
+
 // Init at program start...
 void I_InitSound();
 
