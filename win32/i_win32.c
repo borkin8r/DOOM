@@ -302,7 +302,6 @@ void Win32PlaySoundBuffer()
 
 void Win32FillSoundBuffer(short* mixBuffer, int bufferSize)
 {
-    //TODO: mixBuffer not being filled
     DWORD PlayCursor;
     DWORD WriteCursor;
     if (SUCCEEDED(IDirectSoundBuffer_GetCurrentPosition(SecondaryBuffer, &PlayCursor, &WriteCursor)))
@@ -422,7 +421,7 @@ void InitializeSound(int samplesPerSecond, int bufferSize)
             WAVEFORMATEX WaveFormat = {0};
             WaveFormat.wFormatTag = WAVE_FORMAT_PCM;
             WaveFormat.nChannels = 2;
-            WaveFormat.nSamplesPerSec = samplesPerSecond; //48k? or 11k?  samples/s
+            WaveFormat.nSamplesPerSec = samplesPerSecond; //48k? or 11k?
             WaveFormat.wBitsPerSample = 16;
             WaveFormat.nBlockAlign = (WaveFormat.nChannels*WaveFormat.wBitsPerSample) / 8;
             WaveFormat.nAvgBytesPerSec = WaveFormat.nSamplesPerSec*WaveFormat.nBlockAlign;
